@@ -86,10 +86,29 @@ void PhysicsApp::draw() {
 void PhysicsApp::DemoStartUp(int _num)
 {
 #ifdef NewtonsFirstLaw
-	m_physicsScene->SetGravity(glm::vec2(0));
+	m_physicsScene->SetGravity(glm::vec2(0, -69));
 	Circle* ball;
 	ball = new Circle(glm::vec2(-40, 0), glm::vec2(10, 30), 3.0f, 1, glm::vec4(1, 0, 0, 1));
 	m_physicsScene->AddActor(ball);
+#endif
+	
+#ifdef NewtonsSecondLaw
+	 m_physicsScene->SetGravity(glm::vec2(0, -69));
+	Circle* ball;
+	ball = new Circle(glm::vec2(-40, 0), glm::vec2(10, 30), 3.0f, 1, glm::vec4(1, 0, 0, 1));
+	m_physicsScene->AddActor(ball);
+#endif
+	
+#ifdef NewtonsThirdLaw
+	m_physicsScene->SetGravity(glm::vec2(0, 0));  // turn off gravity
+
+	Circle* ball1 = new Circle(glm::vec2(-10, 0), glm::vec2(3, 0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
+	Circle* ball2 = new Circle(glm::vec2(10, 0), glm::vec2(-3, 0), 4.0f, 4, glm::vec4(0, 1, 0, 1));
+
+	m_physicsScene->AddActor(ball1);
+	m_physicsScene->AddActor(ball2);
+
+	ball1->ApplyForceToActor(ball2, glm::vec2(-2, 0));
 #endif
 	
 }
