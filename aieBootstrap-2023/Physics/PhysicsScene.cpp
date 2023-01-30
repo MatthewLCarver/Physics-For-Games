@@ -49,8 +49,9 @@ bool PhysicsScene::Circle2Circle(PhysicsObject* _physicsObject1, PhysicsObject* 
         if(positionDistance < (sphere1->GetRadius() + sphere2->GetRadius()))
         {
             // TODO if the Circles touch, set their velocities to zero for now
-            sphere1->SetVelocity(glm::vec2(0));
-            sphere2->SetVelocity(glm::vec2(0));
+            /*sphere1->SetVelocity(glm::vec2(0));
+            sphere2->SetVelocity(glm::vec2(0));*/
+            //sphere1->ApplyForceToActor(sphere2, glm::vec2(1, 0));
             return true;
         }
     }

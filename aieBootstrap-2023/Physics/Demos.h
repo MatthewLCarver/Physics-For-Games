@@ -4,5 +4,6 @@
 #define GRAVITY 9.81
 //#define NewtonsFirstLaw
 //#define NewtonsSecondLaw
-#define NewtonsThirdLaw
+//#define NewtonsThirdLaw
+//#define SimulatingACollision
 #define SimulatingRocket

@@ -54,8 +54,16 @@ void PhysicsApp::update(float _deltaTime) {
 
 	m_physicsScene->Update(_deltaTime);
 	m_physicsScene->Draw();
-	
 
+	static float accumulatedTime = 0.0f;
+	accumulatedTime += _deltaTime;
+	while(accumulatedTime > 0.01f)
+	{
+		DemoUpdate(nullptr, _deltaTime);
+
+		accumulatedTime -= 0.01f;
+	}
+	
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
 		quit();
@@ -110,14 +118,53 @@ void PhysicsApp::DemoStartUp(int _num)
 
 	ball1->ApplyForceToActor(ball2, glm::vec2(-2, 0));
 #endif
-	
+
+#ifdef SimulatingACollision
+	m_physicsScene->SetGravity(glm::vec2(0, 0));
+
+	Circle* ball1 = new Circle(glm::vec2(-20, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
+	Circle* ball2 = new Circle(glm::vec2(10, 0), glm::vec2(0), 4.0f, 4, glm::vec4(0, 1, 0, 1));
+
+	m_physicsScene->AddActor(ball1);
+	m_physicsScene->AddActor(ball2);
+
+	ball1->ApplyForce(glm::vec2(30, 0));
+	ball2->ApplyForce(glm::vec2(-15, 0));
+
+#endif
+
+#ifdef SimulatingRocket
+	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
+
+	static Circle* ball1 = new Circle(glm::vec2(0, 0), glm::vec2(0), 800.0f, 4, glm::vec4(1, 0, 0, 1));
+
+	m_physicsScene->AddActor(ball1);
+#endif
 }
 
 void PhysicsApp::DemoUpdate(aie::Input* _input, float _dt)
 {
+#ifdef SimulatingRocket
+	Circle* rocketCircle = dynamic_cast<Circle*>(m_physicsScene->GetActors()[0]);
+	float M =0.1f;
+	if(rocketCircle != nullptr && rocketCircle->GetMass() > 0.0f)
+	{
+		rocketCircle->SetMass(rocketCircle->GetMass() - M);
+		if(rocketCircle->GetMass() <= 0.0f)
+			return;
+		
+		Circle* exhaustCircle = new Circle(rocketCircle->GetPosition() + glm::vec2(0, -rocketCircle->GetRadius() - .5f),
+			glm::vec2(0), M, 0.1f,
+			glm::vec4(0, 1, 0, 1));
+		m_physicsScene->AddActor(exhaustCircle);
+		rocketCircle->ApplyForce(glm::vec2(0, M * rocketCircle->GetMass()));
+		rocketCircle->ApplyForceToActor(exhaustCircle, glm::vec2(0, -M ));
+	}
+#endif
+	
 }
 
 float PhysicsApp::DegreeToRadian(float _degree)
 {
-	return _degree * (PI / 180.0f);
+	return _degree * (PI / 180.0f); 
 }

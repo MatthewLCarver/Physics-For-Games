@@ -28,6 +28,8 @@ public:
         {return m_gravity;}
     float GetTimeStep()
         {return m_timeStep;}
+    std::vector<PhysicsObject*> GetActors()
+        {return m_actors;}
     
 private:
     glm::vec2 m_gravity;
