@@ -9,7 +9,7 @@ public:
     ~Plane();
 
     virtual void FixedUpdate(glm::vec2 gravity, float timeStep);
-    virtual void Draw();
+    virtual void Draw(float _alpha);
     virtual void ResetPosition();
 
     glm::vec2 GetNormal() { return m_normal; }

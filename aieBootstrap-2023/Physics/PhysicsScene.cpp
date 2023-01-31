@@ -2,6 +2,7 @@
 
 #include "Circle.h"
 #include "PhysicsObject.h"
+#include "Plane.h"
 
 PhysicsScene::PhysicsScene()
 {
@@ -49,13 +50,71 @@ bool PhysicsScene::Circle2Circle(PhysicsObject* _physicsObject1, PhysicsObject* 
         if(positionDistance < (sphere1->GetRadius() + sphere2->GetRadius()))
         {
             // TODO if the Circles touch, set their velocities to zero for now
-            /*sphere1->SetVelocity(glm::vec2(0));
-            sphere2->SetVelocity(glm::vec2(0));*/
-            //sphere1->ApplyForceToActor(sphere2, glm::vec2(1, 0));
+            sphere1->SetVelocity(glm::vec2(0));
+            sphere2->SetVelocity(glm::vec2(0));
+            sphere1->ResolveCollision(sphere2);
             return true;
         }
     }
     return false;
+}
+
+bool PhysicsScene::Circle2Plane(PhysicsObject* _circle, PhysicsObject* _plane)
+{
+    Circle* circle = dynamic_cast<Circle*>(_circle);
+    Plane* plane = dynamic_cast<Plane*>(_plane);
+    //if we are successful then test for collision
+    if (circle != nullptr && plane != nullptr)
+    {
+        glm::vec2 collisionNormal = plane->GetNormal();
+        float sphereToPlane = glm::dot(circle->GetPosition(), plane->GetNormal()) - plane->GetDistance();
+
+        float intersection = circle->GetRadius() - sphereToPlane;
+        float velocityOutOfPlane = glm::dot(circle->GetVelocity(), plane->GetNormal());
+        if (intersection > 0 && velocityOutOfPlane < 0)
+        {
+            //set Circle velocity to zero here
+            circle->ApplyForce(-circle->GetVelocity() * circle->GetMass());
+            return true;
+        }
+    }
+    return false;
+}
+
+bool PhysicsScene::Circle2Box(PhysicsObject* _circle, PhysicsObject* _box)
+{
+    return false;
+}
+
+bool PhysicsScene::Plane2Plane(PhysicsObject* _plane1, PhysicsObject* _plane2)
+{
+    // DONE
+    return false;
+}
+
+bool PhysicsScene::Plane2Circle(PhysicsObject* _plane, PhysicsObject* _circle)
+{
+    return Circle2Plane(_circle, _plane);
+}
+
+bool PhysicsScene::Plane2Box(PhysicsObject* _plane, PhysicsObject* _box)
+{
+    return Box2Plane(_box, _plane);
+}
+
+bool PhysicsScene::Box2Box(PhysicsObject* _box1, PhysicsObject* _box2)
+{
+    return false;
+}
+
+bool PhysicsScene::Box2Plane(PhysicsObject* _box, PhysicsObject* _plane)
+{
+    return false;
+}
+
+bool PhysicsScene::Box2Circle(PhysicsObject* _box, PhysicsObject* _circle)
+{
+    return Circle2Box(_circle, _box);
 }
 
 // function pointer array for doing our collisions
@@ -63,8 +122,9 @@ typedef bool(*fn)(PhysicsObject*, PhysicsObject*);
 
 static fn collisionFunctionArray[] =
 {
-    PhysicsScene::Plane2Plane, PhysicsScene::Plane2Circle,
-    PhysicsScene::Circle2Plane, PhysicsScene::Circle2Circle, 
+    PhysicsScene::Plane2Plane,  PhysicsScene::Plane2Circle,  PhysicsScene::Plane2Box,
+    PhysicsScene::Circle2Plane, PhysicsScene::Circle2Circle, PhysicsScene::Circle2Box,
+    PhysicsScene::Box2Plane,    PhysicsScene::Box2Circle,    PhysicsScene::Box2Box,
 };
 
 void PhysicsScene::Update(float _dt)
@@ -103,6 +163,7 @@ void PhysicsScene::Update(float _dt)
                     collisionFunctionPtr(object1, object2);        
                 }
             }
+        }
     }
 }
 
@@ -112,4 +173,8 @@ void PhysicsScene::Draw()
     {
         pActor->Draw(1);
     }
+}
+
+void PhysicsScene::CheckForCollision()
+{
 }

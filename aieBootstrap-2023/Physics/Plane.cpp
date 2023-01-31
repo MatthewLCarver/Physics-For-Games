@@ -4,11 +4,20 @@
 
 Plane::Plane(glm::vec2 _normal, float _distance) : PhysicsObject(ShapeType::PLANE)
 {
-    m_distanceToOrigin = 0;
+    m_distanceToOrigin = _distance;
     m_normal = glm::vec2(0, 1);
+    m_color = glm::vec4(1,0,1,1);
 }
 
-void Plane::Draw()
+Plane::~Plane()
+{
+}
+
+void Plane::FixedUpdate(glm::vec2 gravity, float timeStep)
+{
+}
+
+void Plane::Draw(float _alpha)
 {
     float lineSegmentLength = 300;
     glm::vec2 centerPoint = m_normal * m_distanceToOrigin;
@@ -21,4 +30,9 @@ void Plane::Draw()
     //aie::Gizmos::add2DLine(start, end, colour);
     aie::Gizmos::add2DTri(start, end, start - m_normal*10.0f, m_color, m_color, colourFade);
     aie::Gizmos::add2DTri(end, end - m_normal * 10.0f, start - m_normal * 10.0f, m_color, colourFade, colourFade);
+}
+
+void Plane::ResetPosition()
+{
+    PhysicsObject::ResetPosition();
 }

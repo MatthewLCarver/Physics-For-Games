@@ -35,7 +35,8 @@ public:
         {m_orientation = _orientation;}
     void SetColor(glm::vec4 _color)
         {m_color = _color;}
-    
+
+    void ResolveCollision(Rigidbody* actor2);
 
 protected:
     glm::vec2 m_position;

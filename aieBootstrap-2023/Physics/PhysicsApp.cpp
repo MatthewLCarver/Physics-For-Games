@@ -12,6 +12,7 @@
 
 #include "Circle.h"
 #include "PhysicsScene.h"
+#include "Plane.h"
 
 PhysicsApp::PhysicsApp()
 {
@@ -55,18 +56,15 @@ void PhysicsApp::update(float _deltaTime) {
 
 	m_physicsScene->Update(_deltaTime);
 	m_physicsScene->Draw();
-	
+
+#ifdef SimulatingRocket
 	m_currentExhaustIncrementTime -= _deltaTime;
 	if(m_currentExhaustIncrementTime <= 0.0f)
 	{
 		DemoUpdate(nullptr, _deltaTime);
 		m_currentExhaustIncrementTime = m_exhaustIncrementTime; 
 	}
-
-	if(input->isKeyDown(aie::INPUT_KEY_W))
-	{
-		
-	}
+#endif
 	
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
@@ -143,6 +141,18 @@ void PhysicsApp::DemoStartUp(int _num)
 	static Circle* ball1 = new Circle(glm::vec2(0, 0), glm::vec2(0), 800.0f, 4, glm::vec4(1, 0, 0, 1));
 
 	m_physicsScene->AddActor(ball1);
+#endif
+	
+#ifdef CircleToPlane
+	m_physicsScene->SetGravity(glm::vec2(0, -9.82f));
+
+	Circle* ball1 = new Circle(glm::vec2(-20, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
+	Circle* ball2 = new Circle(glm::vec2(10, 0), glm::vec2(0), 4.0f, 4, glm::vec4(0, 1, 0, 1));
+	Plane* plane = new Plane(glm::vec2(0, 1), -30);
+
+	m_physicsScene->AddActor(ball1);
+	m_physicsScene->AddActor(ball2);
+	m_physicsScene->AddActor(plane);
 #endif
 }
 
