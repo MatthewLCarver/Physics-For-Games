@@ -58,6 +58,15 @@ bool PhysicsScene::Circle2Circle(PhysicsObject* _physicsObject1, PhysicsObject* 
     return false;
 }
 
+// function pointer array for doing our collisions
+typedef bool(*fn)(PhysicsObject*, PhysicsObject*);
+
+static fn collisionFunctionArray[] =
+{
+    PhysicsScene::Plane2Plane, PhysicsScene::Plane2Circle,
+    PhysicsScene::Circle2Plane, PhysicsScene::Circle2Circle, 
+};
+
 void PhysicsScene::Update(float _dt)
 {
     static float accumulatedTime = 0.0f;
@@ -75,19 +84,25 @@ void PhysicsScene::Update(float _dt)
         // scene management in place)
         int actorCount = m_actors.size();
 
-        // need to check for collisions against all objects except this one.
+        //need to check for collisions against all objects except this one.
         for (int outer = 0; outer < actorCount - 1; outer++)
         {
             for (int inner = outer + 1; inner < actorCount; inner++)
             {
                 PhysicsObject* object1 = m_actors[outer];
                 PhysicsObject* object2 = m_actors[inner];
-                
-                // for now we can assume both shapes are Circles, 
-                // since that is all we’ve implemented for now.
-                Circle2Circle(object1, object2);
+                int shapeId1 = object1->GetShapeID();
+                int shapeId2 = object2->GetShapeID();
+
+                // using function pointers
+                int functionIdx = (shapeId1 * SHAPE_COUNT) + shapeId2;
+                fn collisionFunctionPtr = collisionFunctionArray[functionIdx];
+                if (collisionFunctionPtr != nullptr)
+                {
+                    // did a collision occur?
+                    collisionFunctionPtr(object1, object2);        
+                }
             }
-        }
     }
 }
 
