@@ -162,8 +162,10 @@ void Rigidbody::ResolveCollision(Rigidbody* actor2)
 	glm::vec2 force = normal * j;
 
 	float kePre = GetKineticEnergy() + actor2->GetKineticEnergy();
+	//Incorrect
+	//applyForceToActor(actor2, -force);
 
-	applyForceToActor(actor2, -force);
+	applyForceToActor(actor2, force);
 
 	float kePost = GetKineticEnergy() + actor2->GetKineticEnergy();
 
