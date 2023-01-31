@@ -27,9 +27,14 @@ protected:
 
 	PhysicsScene* m_physicsScene;
 	std::vector<PhysicsObject*> m_objects;
-
+ 
 public:
 	void DemoStartUp(int _num);
+	void CullPhysicsActors();
 	void DemoUpdate(aie::Input* _input, float _dt);
 	float DegreeToRadian(float _degree);
+
+private:
+	float m_exhaustIncrementTime = 0.25f;
+	float m_currentExhaustIncrementTime = 0.25f;
 };

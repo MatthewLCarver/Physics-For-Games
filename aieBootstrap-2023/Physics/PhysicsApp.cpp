@@ -1,6 +1,7 @@
 #include "PhysicsApp.h"
 
 #include <Gizmos.h>
+#include <gl_core_4_4.h>
 
 #include "Demos.h"
 #include "Font.h"
@@ -54,14 +55,17 @@ void PhysicsApp::update(float _deltaTime) {
 
 	m_physicsScene->Update(_deltaTime);
 	m_physicsScene->Draw();
-
-	static float accumulatedTime = 0.0f;
-	accumulatedTime += _deltaTime;
-	while(accumulatedTime > 0.01f)
+	
+	m_currentExhaustIncrementTime -= _deltaTime;
+	if(m_currentExhaustIncrementTime <= 0.0f)
 	{
 		DemoUpdate(nullptr, _deltaTime);
+		m_currentExhaustIncrementTime = m_exhaustIncrementTime; 
+	}
 
-		accumulatedTime -= 0.01f;
+	if(input->isKeyDown(aie::INPUT_KEY_W))
+	{
+		
 	}
 	
 	// exit the application
@@ -134,7 +138,7 @@ void PhysicsApp::DemoStartUp(int _num)
 #endif
 
 #ifdef SimulatingRocket
-	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
+	m_physicsScene->SetGravity(glm::vec2(0, 0));//-GRAVITY));
 
 	static Circle* ball1 = new Circle(glm::vec2(0, 0), glm::vec2(0), 800.0f, 4, glm::vec4(1, 0, 0, 1));
 
@@ -142,11 +146,21 @@ void PhysicsApp::DemoStartUp(int _num)
 #endif
 }
 
+void PhysicsApp::CullPhysicsActors()
+{
+	if(m_physicsScene->GetActors().size() > 100)
+	{
+		// delete second element
+		delete m_physicsScene->GetActors()[1];
+		m_physicsScene->GetActors().erase(m_physicsScene->GetActors().end() - 1);
+	}
+}
+
 void PhysicsApp::DemoUpdate(aie::Input* _input, float _dt)
 {
 #ifdef SimulatingRocket
 	Circle* rocketCircle = dynamic_cast<Circle*>(m_physicsScene->GetActors()[0]);
-	float M =0.1f;
+	float M =20.f;
 	if(rocketCircle != nullptr && rocketCircle->GetMass() > 0.0f)
 	{
 		rocketCircle->SetMass(rocketCircle->GetMass() - M);
@@ -154,11 +168,13 @@ void PhysicsApp::DemoUpdate(aie::Input* _input, float _dt)
 			return;
 		
 		Circle* exhaustCircle = new Circle(rocketCircle->GetPosition() + glm::vec2(0, -rocketCircle->GetRadius() - .5f),
-			glm::vec2(0), M, 0.1f,
+			glm::vec2(0), M, M/20,
 			glm::vec4(0, 1, 0, 1));
 		m_physicsScene->AddActor(exhaustCircle);
-		rocketCircle->ApplyForce(glm::vec2(0, M * rocketCircle->GetMass()));
-		rocketCircle->ApplyForceToActor(exhaustCircle, glm::vec2(0, -M ));
+		CullPhysicsActors();
+		
+		rocketCircle->ApplyForceToActor(exhaustCircle, glm::vec2(0, -(M*20)));
+		
 	}
 #endif
 	
