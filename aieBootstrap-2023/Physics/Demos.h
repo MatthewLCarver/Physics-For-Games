@@ -7,5 +7,8 @@
 //#define NewtonsThirdLaw
 //#define SimulatingACollision
 //#define SimulatingRocket
-#define CircleToPlane
+//#define CircleToPlane
+//#define SphereToSphereNewtonsCradle
+//#define SymetricalNewtonsCradle
+#define AsymmetricalNewtonsCradle
 

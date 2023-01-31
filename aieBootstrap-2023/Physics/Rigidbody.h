@@ -37,6 +37,8 @@ public:
         {m_color = _color;}
 
     void ResolveCollision(Rigidbody* actor2);
+    float GetKineticEnergy();
+    float GetPotentialEnergy();
 
 protected:
     glm::vec2 m_position;
@@ -45,4 +47,9 @@ protected:
     float m_orientation;
 
     glm::vec4 m_color;
+    
+    float m_angularVelocity;
+    float m_moment;
+
+    float m_lastOrientation;
 };
