@@ -10,6 +10,7 @@
 
 #include <glm/ext.hpp>
 
+#include "Box.h"
 #include "Circle.h"
 #include "PhysicsScene.h"
 #include "Plane.h"
@@ -154,7 +155,7 @@ void PhysicsApp::DemoStartUp(int _num)
 	m_physicsScene->AddActor(ball2);
 	m_physicsScene->AddActor(plane);
 #endif
-#ifdef SphereToSphereNewtonsCradle
+#ifdef CircleToCircleNewtonsCradle
 	m_physicsScene->SetGravity(glm::vec2(0));
 
 	Circle* ball1 = new Circle(glm::vec2(-20, 0), glm::vec2(0), 3.0f, 4, glm::vec4(1, 0, 0, 1));
@@ -224,7 +225,38 @@ void PhysicsApp::DemoStartUp(int _num)
 	m_physicsScene->AddActor(plane3);
 	m_physicsScene->AddActor(plane4);
 
-	ball1->ApplyForce(glm::vec2(2000, 0));
+	ball1->ApplyForce(glm::vec2(2000, 0), glm::vec2(0, 2));
+#endif
+#ifdef BoxToPlaneCollision
+	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
+
+	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 10.0f, glm::vec2(5), glm::vec4(1, 0, 0, 1));
+	Plane* plane1 = new Plane(glm::vec2(0, 1), -50);
+
+	m_physicsScene->AddActor(box1);
+	m_physicsScene->AddActor(plane1);
+#endif
+#ifdef BoxtoCircleCollision
+	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
+
+	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 10.0f, glm::vec2(5), glm::vec4(1, 0, 0, 1));
+	Circle* circle1 = new Circle(glm::vec2(8, 20), glm::vec2(0), 4.0f, 4, glm::vec4(0, 0, 1, 1));
+	Plane* plane1 = new Plane(glm::vec2(0, 1), -50);
+
+	m_physicsScene->AddActor(box1);
+	m_physicsScene->AddActor(circle1);
+	m_physicsScene->AddActor(plane1);
+#endif
+#ifdef BoxtoBoxCollision
+	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
+
+	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 10.0f, glm::vec2(5), glm::vec4(1, 0, 0, 1));
+	Box* box2 = new Box(glm::vec2 (9, 20), glm::vec2(0), 10.0f, glm::vec2(5), glm::vec4(1, 0, 0, 1));
+	Plane* plane1 = new Plane(glm::vec2(0, 1), -50);
+
+	m_physicsScene->AddActor(box1);
+	m_physicsScene->AddActor(box2);
+	m_physicsScene->AddActor(plane1);
 #endif
 }
 

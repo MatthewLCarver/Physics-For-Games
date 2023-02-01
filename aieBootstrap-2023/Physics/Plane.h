@@ -9,9 +9,9 @@ public:
     Plane(glm::vec2 _normal, float distance);
     ~Plane();
 
-    virtual void FixedUpdate(glm::vec2 gravity, float timeStep);
+    virtual void FixedUpdate(glm::vec2 _gravity, float _timeStep);
     virtual void Draw(float _alpha);
-    void ResolveCollision(Rigidbody* actor2);
+    void ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact);
     virtual void ResetPosition();
 
     glm::vec2 GetNormal() { return m_normal; }

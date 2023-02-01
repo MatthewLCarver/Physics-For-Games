@@ -8,7 +8,10 @@
 //#define SimulatingACollision
 //#define SimulatingRocket
 //#define CircleToPlane
-//#define SphereToSphereNewtonsCradle
+//#define CircleToCircleNewtonsCradle
 //#define SymetricalNewtonsCradle
-#define AsymmetricalNewtonsCradle
+//#define AsymmetricalNewtonsCradle
+//#define BoxToPlaneCollision
+//#define BoxtoCircleCollision
+#define BoxtoBoxCollision
 

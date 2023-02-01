@@ -3,14 +3,16 @@
 
 #include <glm/glm.hpp>
 
+#include "Demos.h"
+
 class Rigidbody : public PhysicsObject
 {
 public:
     Rigidbody(ShapeType _shapeID, glm::vec2 _position, glm::vec2 _velocity, float _orientation, float _mass);
     virtual ~Rigidbody();
     virtual void FixedUpdate(glm::vec2 _gravity, float _timeStep);
-    void ApplyForce(glm::vec2 _force);
-    void ApplyForceToActor(Rigidbody* _otherActor, glm::vec2 _force);
+    void ApplyForce(glm::vec2 _force, glm::vec2 _pos);
+    //void ApplyForceToActor(Rigidbody* _otherActor, glm::vec2 _force);
 
     // Getters
     glm::vec2 GetPosition()
@@ -23,6 +25,19 @@ public:
         {return m_orientation;}
     glm::vec4 GetColor()
         {return m_color;}
+    float GetKineticEnergy()
+        {return 0.5f * (m_mass*glm::dot(m_velocity, m_velocity) + 
+        m_moment * m_angularVelocity * m_angularVelocity);}
+    float GetPotentialEnergy()
+        {return m_mass * -GRAVITY * m_position.y;}
+    glm::vec2 GetLocalX()
+        {return m_localX;}
+    glm::vec2 GetLocalY()
+        {return m_localY;}
+    float GetAngularVelocity()
+        {return m_angularVelocity;}
+    float GetMoment()
+        {return m_moment;}
     
     // Setters
     void SetPosition(glm::vec2 _position)
@@ -36,20 +51,29 @@ public:
     void SetColor(glm::vec4 _color)
         {m_color = _color;}
 
-    void ResolveCollision(Rigidbody* actor2);
-    float GetKineticEnergy();
-    float GetPotentialEnergy();
+    void ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact, glm::vec2* _collisionNormal=nullptr);
+    virtual void CalculateSmoothedPosition(float _alpha);
+    void CalculateAxes();
+    
 
 protected:
     glm::vec2 m_position;
     glm::vec2 m_velocity;
     float m_mass;
     float m_orientation;
-
+    glm::vec2 m_lastPosition;
+    float m_lastOrientation;
+    
     glm::vec4 m_color;
     
     float m_angularVelocity;
     float m_moment;
+    
+    glm::vec2 m_smoothedPosition;
+    glm::vec2 m_smoothedLocalX;
+    glm::vec2 m_smoothedLocalY;
 
-    float m_lastOrientation;
+    glm::vec2 m_localX;
+    glm::vec2 m_localY;
+    
 };
