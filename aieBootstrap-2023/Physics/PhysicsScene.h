@@ -2,6 +2,8 @@
 #include <glm/vec2.hpp>
 #include <vector>
 
+#include "Rigidbody.h"
+
 class PhysicsObject;
 
 class PhysicsScene
@@ -30,6 +32,7 @@ public:
     void Draw();
 
     void CheckForCollision();
+    static void ApplyContactForces(Rigidbody* body1, Rigidbody* body2, glm::vec2 norm, float pen);
 
     // Setters
     void SetGravity(const glm::vec2 _gravity)

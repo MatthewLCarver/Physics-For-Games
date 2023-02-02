@@ -6,12 +6,24 @@ Box::Box(glm::vec2 _position, glm::vec2 _velocity, float _mass, glm::vec2 _exten
 {
     m_extents = _extents;
     m_color = _color;
+	m_moment = 1.0f / 12.0f * m_mass * (GetExtents().x * 2) * (GetExtents().y * 2);
 }
 
 
 Box::~Box()
 {
 }
+
+/*
+void Box::FixedUpdate(glm::vec2 _gravity, float _timeStep)
+{
+	if (length(m_velocity) > MAX_BOX_LINEAR_THRESHOLD) 
+		m_velocity = normalize(m_velocity) * MAX_BOX_LINEAR_THRESHOLD;
+    
+	if (abs(m_angularVelocity) < MAX_BOX_ANGULAR_THRESHOLD) 
+		m_angularVelocity = MAX_BOX_ANGULAR_THRESHOLD;
+}
+*/
 
 void Box::Draw(float _alpha)
 {

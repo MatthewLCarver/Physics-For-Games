@@ -2,6 +2,7 @@
 
 #include <Gizmos.h>
 #include <gl_core_4_4.h>
+#include <iostream>
 
 #include "Demos.h"
 #include "Font.h"
@@ -66,6 +67,8 @@ void PhysicsApp::update(float _deltaTime) {
 		m_currentExhaustIncrementTime = m_exhaustIncrementTime; 
 	}
 #endif
+
+	DemoUpdate(nullptr, _deltaTime);
 	
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
@@ -119,7 +122,7 @@ void PhysicsApp::DemoStartUp(int _num)
 	m_physicsScene->AddActor(ball1);
 	m_physicsScene->AddActor(ball2);
 
-	ball1->ApplyForceToActor(ball2, glm::vec2(-2, 0));
+	//ball1->ApplyForceToActor(ball2, glm::vec2(-2, 0));
 #endif
 
 #ifdef SimulatingACollision
@@ -196,7 +199,7 @@ void PhysicsApp::DemoStartUp(int _num)
 	m_physicsScene->AddActor(plane1);
 	m_physicsScene->AddActor(plane2);
 
-	ball1->ApplyForce(glm::vec2(100, 0));
+	ball1->ApplyForce(glm::vec2(100, 0), glm::vec2(0, 0));
 #endif
 #ifdef AsymmetricalNewtonsCradle
 	m_physicsScene->SetGravity(glm::vec2(0));
@@ -248,26 +251,16 @@ void PhysicsApp::DemoStartUp(int _num)
 	m_physicsScene->AddActor(plane1);
 #endif
 #ifdef BoxtoBoxCollision
-	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
+	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY * 5));
 
-	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 10.0f, glm::vec2(5), glm::vec4(1, 0, 0, 1));
-	Box* box2 = new Box(glm::vec2 (9, 20), glm::vec2(0), 10.0f, glm::vec2(5), glm::vec4(1, 0, 0, 1));
+	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 100.0f, glm::vec2(5), glm::vec4(1, 1, 0, 1));
+	Box* box2 = new Box(glm::vec2 (9.0f, 20), glm::vec2(0), 20.0f, glm::vec2(5), glm::vec4(0, 1, 1, 1));
 	Plane* plane1 = new Plane(glm::vec2(0, 1), -50);
 
 	m_physicsScene->AddActor(box1);
 	m_physicsScene->AddActor(box2);
 	m_physicsScene->AddActor(plane1);
 #endif
-}
-
-void PhysicsApp::CullPhysicsActors()
-{
-	if(m_physicsScene->GetActors().size() > 100)
-	{
-		// delete second element
-		delete m_physicsScene->GetActors()[1];
-		m_physicsScene->GetActors().erase(m_physicsScene->GetActors().end() - 1);
-	}
 }
 
 void PhysicsApp::DemoUpdate(aie::Input* _input, float _dt)
@@ -290,6 +283,15 @@ void PhysicsApp::DemoUpdate(aie::Input* _input, float _dt)
 		rocketCircle->ApplyForceToActor(exhaustCircle, glm::vec2(0, -(M*20)));
 		
 	}
+#endif
+
+#ifdef BoxtoBoxCollision
+	// DEBUGGING CODE
+	/*Box* box1 = dynamic_cast<Box*>(m_physicsScene->GetActors()[0]);
+	Box* box2 = dynamic_cast<Box*>(m_physicsScene->GetActors()[1]);
+	std::cout << "Box1 Velocity: " << box1->GetVelocity().x << ", " << box1->GetVelocity().y << "			Box2 Velocity: " << box2->GetVelocity().x << ", " << box2->GetVelocity().y << std::endl;
+	std::cout << "Box1 Rotation: " << box1->GetOrientation() << "				Box2 Rotation: " << box2->GetOrientation() << std::endl;
+	std::cout << "Box1 Angular Velocity: " << box1->GetAngularVelocity() << "			Box2 Angular Velocity: " << box2->GetAngularVelocity() << std::endl;*/	
 #endif
 	
 }

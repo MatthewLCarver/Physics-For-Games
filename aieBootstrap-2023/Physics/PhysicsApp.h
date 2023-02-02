@@ -30,7 +30,6 @@ protected:
  
 public:
 	void DemoStartUp(int _num);
-	void CullPhysicsActors();
 	void DemoUpdate(aie::Input* _input, float _dt);
 	float DegreeToRadian(float _degree);
 

@@ -3,6 +3,7 @@
 #include <Gizmos.h>
 #include <iostream>
 
+#include "PhysicsScene.h"
 #include "Rigidbody.h"
 
 Plane::Plane(glm::vec2 _normal, float _distance) : PhysicsObject(ShapeType::PLANE)
@@ -10,6 +11,7 @@ Plane::Plane(glm::vec2 _normal, float _distance) : PhysicsObject(ShapeType::PLAN
     m_distanceToOrigin = _distance;
     m_normal = _normal;
     m_color = glm::vec4(1,0,1,1);
+    m_elasticity = 0.5f;
 }
 
 Plane::~Plane()
@@ -44,8 +46,8 @@ void Plane::ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact)
     glm::vec2 vRel = _actor2->GetVelocity() + _actor2->GetAngularVelocity() * glm::vec2(-localContact.y, localContact.x);
     float velocityIntoPlane = glm::dot(vRel, m_normal);
 
-    // perfectly elasticity collisions for now
-    float e = 1;
+    // average the elasticity of the plane and the rigidbody
+    float e = (GetElasticity() + _actor2->GetElasticity()) / 2.0f;
 
     // this is the perpendicular distance we apply the force at relative to the COM, so Torque = F*r
     float r = glm::dot(localContact, glm::vec2(m_normal.y, -m_normal.x));
@@ -63,10 +65,13 @@ void Plane::ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact)
 
     _actor2->ApplyForce(force, _contact - _actor2->GetPosition());
 
+    float pen = glm::dot(_contact, m_normal) - m_distanceToOrigin;
+    PhysicsScene::ApplyContactForces(_actor2, nullptr, m_normal, pen);
+
     float kePost = _actor2->GetKineticEnergy();
 
     float deltaKE = kePost - kePre;
-    if (deltaKE > kePost * 0.01f)
+    if(deltaKE > kePost * 0.01f)
         std::cout << "Kinetic Energy discrepancy greater than 1% detected!!";
 }
 

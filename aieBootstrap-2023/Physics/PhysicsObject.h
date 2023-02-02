@@ -22,11 +22,11 @@ public:
 
     // Getter
     ShapeType GetShapeID() const
-    {return m_shapeID;}
+        {return m_shapeID;}
+    float GetElasticity() const
+        {return m_elasticity;}
 
 protected:
     ShapeType m_shapeID;
-    
-
-    
+    float m_elasticity;
 };

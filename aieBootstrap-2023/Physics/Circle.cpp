@@ -8,7 +8,6 @@ Rigidbody(CIRCLE, _position, velocity, 0, _mass)
     m_radius = _radius;
     m_color = _color;
     m_moment = 0.5f * m_mass * m_radius * m_radius;
-    // Box Moment of Inertia = moment = 1.0f / 12.0f * mass * width * height;
 }
 
 Circle::~Circle()

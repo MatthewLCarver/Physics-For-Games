@@ -12,7 +12,7 @@ public:
     virtual ~Rigidbody();
     virtual void FixedUpdate(glm::vec2 _gravity, float _timeStep);
     void ApplyForce(glm::vec2 _force, glm::vec2 _pos);
-    //void ApplyForceToActor(Rigidbody* _otherActor, glm::vec2 _force);
+    void ApplyForceToActor(Rigidbody* _otherActor, glm::vec2 _force, glm::vec2 _contact);
 
     // Getters
     glm::vec2 GetPosition()
@@ -38,6 +38,10 @@ public:
         {return m_angularVelocity;}
     float GetMoment()
         {return m_moment;}
+    float GetLinearDrag()
+        {return m_linearDrag;}
+    float GetAngularDrag()
+        {return m_angularDrag;}
     
     // Setters
     void SetPosition(glm::vec2 _position)
@@ -51,7 +55,7 @@ public:
     void SetColor(glm::vec4 _color)
         {m_color = _color;}
 
-    void ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact, glm::vec2* _collisionNormal=nullptr);
+    void ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact, glm::vec2* _collisionNormal = nullptr, float _pen = 0);
     virtual void CalculateSmoothedPosition(float _alpha);
     void CalculateAxes();
     
@@ -75,5 +79,7 @@ protected:
 
     glm::vec2 m_localX;
     glm::vec2 m_localY;
-    
+
+    float m_linearDrag;
+    float m_angularDrag;
 };
