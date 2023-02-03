@@ -17,6 +17,8 @@
 //#define SymetricalNewtonsCradle
 //#define AsymmetricalNewtonsCradle
 //#define BoxToPlaneCollision
-#define BoxtoCircleCollision
+//#define BoxtoCircleCollision
 //#define BoxtoBoxCollision
+//#define PhysicsBucket
+#define SpringExperiment
 

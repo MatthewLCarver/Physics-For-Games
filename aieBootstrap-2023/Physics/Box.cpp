@@ -2,11 +2,14 @@
 
 #include "Gizmos.h"
 
-Box::Box(glm::vec2 _position, glm::vec2 _velocity, float _mass, glm::vec2 _extents, glm::vec4 _color): Rigidbody(BOX, _position, _velocity, 0, _mass)
+Box::Box(glm::vec2 _position, glm::vec2 _velocity, float _mass, glm::vec2 _extents, glm::vec4 _color, bool _isKinematic, float _orientation, float _elasticity):
+	Rigidbody(BOX, _position, _velocity, 0, _mass, _isKinematic)
 {
     m_extents = _extents;
     m_color = _color;
 	m_moment = 1.0f / 12.0f * m_mass * (GetExtents().x * 2) * (GetExtents().y * 2);
+	m_elasticity = _elasticity;
+	m_orientation = _orientation;	
 }
 
 

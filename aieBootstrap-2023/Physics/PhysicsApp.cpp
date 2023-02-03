@@ -15,6 +15,7 @@
 #include "Circle.h"
 #include "PhysicsScene.h"
 #include "Plane.h"
+#include "Spring.h"
 
 PhysicsApp::PhysicsApp()
 {
@@ -105,14 +106,12 @@ void PhysicsApp::DemoStartUp(int _num)
 	ball = new Circle(glm::vec2(-40, 0), glm::vec2(10, 30), 3.0f, 1, glm::vec4(1, 0, 0, 1));
 	m_physicsScene->AddActor(ball);
 #endif
-	
 #ifdef NewtonsSecondLaw
 	 m_physicsScene->SetGravity(glm::vec2(0, -69));
 	Circle* ball;
 	ball = new Circle(glm::vec2(-40, 0), glm::vec2(10, 30), 3.0f, 1, glm::vec4(1, 0, 0, 1));
 	m_physicsScene->AddActor(ball);
 #endif
-	
 #ifdef NewtonsThirdLaw
 	m_physicsScene->SetGravity(glm::vec2(0, 0));  // turn off gravity
 
@@ -124,7 +123,6 @@ void PhysicsApp::DemoStartUp(int _num)
 
 	//ball1->ApplyForceToActor(ball2, glm::vec2(-2, 0));
 #endif
-
 #ifdef SimulatingACollision
 	m_physicsScene->SetGravity(glm::vec2(0, 0));
 
@@ -138,7 +136,6 @@ void PhysicsApp::DemoStartUp(int _num)
 	ball2->ApplyForce(glm::vec2(-15, 0));
 
 #endif
-
 #ifdef SimulatingRocket
 	m_physicsScene->SetGravity(glm::vec2(0, 0));//-GRAVITY));
 
@@ -146,7 +143,6 @@ void PhysicsApp::DemoStartUp(int _num)
 
 	m_physicsScene->AddActor(ball1);
 #endif
-	
 #ifdef CircleToPlane
 	m_physicsScene->SetGravity(glm::vec2(0, -9.82f));
 
@@ -242,8 +238,9 @@ void PhysicsApp::DemoStartUp(int _num)
 #ifdef BoxtoCircleCollision
 	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
 
-	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 10.0f, glm::vec2(5), glm::vec4(1, 0, 0, 1));
-	Circle* circle1 = new Circle(glm::vec2(8, 20), glm::vec2(0), 4.0f, 4, glm::vec4(0, 0, 1, 1));
+	// create a box
+	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 10.0f, glm::vec2(5), glm::vec4(1, 0, 0, 1), false);
+	Circle* circle1 = new Circle(glm::vec2(8, 20), glm::vec2(0), 4.0f, 4, glm::vec4(0, 0, 1, 1), false);
 	Plane* plane1 = new Plane(glm::vec2(0, 1), -50);
 
 	m_physicsScene->AddActor(box1);
@@ -259,6 +256,49 @@ void PhysicsApp::DemoStartUp(int _num)
 
 	m_physicsScene->AddActor(box1);
 	m_physicsScene->AddActor(box2);
+	m_physicsScene->AddActor(plane1);
+#endif
+#ifdef PhysicsBucket
+	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
+
+	// create a box
+	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 10.0f, glm::vec2(10, 2), glm::vec4(1, 0, 0, 1), true);
+	Box* box2 = new Box(glm::vec2 (10, 0), glm::vec2(0), 10.0f, glm::vec2(2, 10), glm::vec4(1, 0, 0, 1), true);
+	Box* box3 = new Box(glm::vec2 (-10, 0), glm::vec2(0), 10.0f, glm::vec2(2, 10), glm::vec4(1, 0, 0, 1), true);
+	Circle* circle1 = new Circle(glm::vec2(8, 20), glm::vec2(0), 1.0f, 4, glm::vec4(0, 0, 1, 1), false);
+	Plane* plane1 = new Plane(glm::vec2(0, 1), -50);
+	box1->SetKinematic(true);
+	box2->SetKinematic(true);
+	box3->SetKinematic(true);
+
+	m_physicsScene->AddActor(box1);
+	m_physicsScene->AddActor(box2);
+	m_physicsScene->AddActor(box3);
+	m_physicsScene->AddActor(circle1);
+	m_physicsScene->AddActor(plane1);
+#endif
+#ifdef SpringExperiment
+	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
+
+	// create a box
+	Circle* circle1 = new Circle(glm::vec2(0, 20), glm::vec2(0), 10.0f, 4, glm::vec4(0, 0, 1, 1), true);
+	Circle* circle2 = new Circle(glm::vec2(5, 10), glm::vec2(0), 10.0f, 4, glm::vec4(0, 0, 1, 1), false);
+	Spring* spring1 = new Spring(circle1, circle2, 40, 0.001f, 0);
+	Circle* circle3 = new Circle(glm::vec2(20, 10), glm::vec2(0), 10.0f, 4, glm::vec4(0, 0, 1, 1), false);
+	Spring* spring2 = new Spring(circle2, circle3, 40, 0.001f, 0);
+	Box* box1 = new Box(glm::vec2 (30, 30), glm::vec2(0), 10.0f, glm::vec2(5), glm::vec4(1, 0, 0, 1), false, 0.5f, 0.75f);
+	Spring* spring3 = new Spring(circle3, box1, 40, 0.001f, 0);
+	
+	Plane* plane1 = new Plane(glm::vec2(0, 1), -50);
+	
+	m_physicsScene->AddActor(circle1);
+	m_physicsScene->AddActor(circle2);
+	m_physicsScene->AddActor(spring1);
+	m_physicsScene->AddActor(circle3);
+	m_physicsScene->AddActor(spring2);
+	m_physicsScene->AddActor(box1);
+	m_physicsScene->AddActor(spring3);
+	
 	m_physicsScene->AddActor(plane1);
 #endif
 }
@@ -284,7 +324,6 @@ void PhysicsApp::DemoUpdate(aie::Input* _input, float _dt)
 		
 	}
 #endif
-
 #ifdef BoxtoBoxCollision
 	// DEBUGGING CODE
 	/*Box* box1 = dynamic_cast<Box*>(m_physicsScene->GetActors()[0]);
@@ -293,7 +332,6 @@ void PhysicsApp::DemoUpdate(aie::Input* _input, float _dt)
 	std::cout << "Box1 Rotation: " << box1->GetOrientation() << "				Box2 Rotation: " << box2->GetOrientation() << std::endl;
 	std::cout << "Box1 Angular Velocity: " << box1->GetAngularVelocity() << "			Box2 Angular Velocity: " << box2->GetAngularVelocity() << std::endl;*/	
 #endif
-	
 }
 
 float PhysicsApp::DegreeToRadian(float _degree)

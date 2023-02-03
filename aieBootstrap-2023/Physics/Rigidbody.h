@@ -8,7 +8,7 @@
 class Rigidbody : public PhysicsObject
 {
 public:
-    Rigidbody(ShapeType _shapeID, glm::vec2 _position, glm::vec2 _velocity, float _orientation, float _mass);
+    Rigidbody(ShapeType _shapeID, glm::vec2 _position, glm::vec2 _velocity, float _orientation, float _mass,  bool _isKinematic);
     virtual ~Rigidbody();
     virtual void FixedUpdate(glm::vec2 _gravity, float _timeStep);
     void ApplyForce(glm::vec2 _force, glm::vec2 _pos);
@@ -20,7 +20,7 @@ public:
     glm::vec2 GetVelocity()
         {return m_velocity;}
     float GetMass()
-        {return m_mass;}
+        {return m_isKinematic ? INT_MAX : m_mass;}
     float GetOrientation()
         {return m_orientation;}
     glm::vec4 GetColor()
@@ -37,11 +37,13 @@ public:
     float GetAngularVelocity()
         {return m_angularVelocity;}
     float GetMoment()
-        {return m_moment;}
+        { return m_isKinematic ? INT_MAX : m_moment; } 
     float GetLinearDrag()
         {return m_linearDrag;}
     float GetAngularDrag()
         {return m_angularDrag;}
+    bool IsKinematic()
+        { return m_isKinematic; } 
     
     // Setters
     void SetPosition(glm::vec2 _position)
@@ -54,11 +56,14 @@ public:
         {m_orientation = _orientation;}
     void SetColor(glm::vec4 _color)
         {m_color = _color;}
+    void SetKinematic(bool state)
+        { m_isKinematic = state; } 
 
     void ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact, glm::vec2* _collisionNormal = nullptr, float _pen = 0);
     virtual void CalculateSmoothedPosition(float _alpha);
     void CalculateAxes();
-    
+    glm::vec2 ToWorld(glm::vec2 _contact);
+    glm::vec2 ToWorldSmoothed(glm::vec2 _localPos);
 
 protected:
     glm::vec2 m_position;
@@ -82,4 +87,6 @@ protected:
 
     float m_linearDrag;
     float m_angularDrag;
+
+    bool m_isKinematic; 
 };

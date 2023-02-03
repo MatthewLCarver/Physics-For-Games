@@ -4,7 +4,7 @@
 class Circle : public Rigidbody
 {
 public:
-    Circle(glm::vec2 _position, glm::vec2 velocity, float _mass, float _radius, glm::vec4 _color);
+    Circle(glm::vec2 _position, glm::vec2 velocity, float _mass, float _radius, glm::vec4 _color, bool _isKinematic);
     ~Circle();
     
     virtual void Draw(float _alpha);

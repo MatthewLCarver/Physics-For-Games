@@ -4,7 +4,7 @@
 class Box : public Rigidbody
 {
 public:
-    Box(glm::vec2 _position, glm::vec2 velocity, float _mass, glm::vec2 _extents, glm::vec4 _color);
+    Box(glm::vec2 _position, glm::vec2 velocity, float _mass, glm::vec2 _extents, glm::vec4 _color, bool _isKinematic, float _orientation, float _elasticity);
     ~Box();
     //virtual void FixedUpdate(glm::vec2 _gravity, float _timeStep);
     virtual void Draw(float _alpha);
