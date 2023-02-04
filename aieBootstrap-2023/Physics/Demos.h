@@ -20,5 +20,6 @@
 //#define BoxtoCircleCollision
 //#define BoxtoBoxCollision
 //#define PhysicsBucket
-#define SpringExperiment
+//#define SpringExperiment
+#define SoftbodyTest
 

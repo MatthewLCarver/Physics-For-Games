@@ -15,6 +15,7 @@
 #include "Circle.h"
 #include "PhysicsScene.h"
 #include "Plane.h"
+#include "SoftBody.h"
 #include "Spring.h"
 
 PhysicsApp::PhysicsApp()
@@ -300,6 +301,47 @@ void PhysicsApp::DemoStartUp(int _num)
 	m_physicsScene->AddActor(spring3);
 	
 	m_physicsScene->AddActor(plane1);
+#endif
+#ifdef SoftbodyTest
+	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
+
+	Plane* plane = new Plane(glm::vec2(0, 1), -30);
+	m_physicsScene->AddActor(plane);
+
+	/*Plane* planeD = new Plane(glm::vec2(.707f, .707f), -50);
+	m_physicsScene->AddActor(planeD);*/
+
+	std::vector<std::string> sb;
+	sb.push_back("000000");
+	sb.push_back("000000");
+	sb.push_back("00....");
+	sb.push_back("00....");
+	sb.push_back("000000");
+	sb.push_back("000000");
+
+	std::vector<std::string> sc;
+	sc.push_back("..00..");
+	sc.push_back("..00..");
+	sc.push_back("000000");
+	sc.push_back("000000");
+	sc.push_back("..00..");
+	sc.push_back("..00..");
+
+	std::vector<std::string> sd;
+	sd.push_back("..00..");
+	sd.push_back("..00..");
+	sd.push_back("000000");
+	sd.push_back("000000");
+	sd.push_back("..00..");
+	sd.push_back("..00..");
+
+
+	SoftBody::BuildBoxes(m_physicsScene, glm::vec2(-50, -30), 5.0f, 5.0f, 6.f, sb);
+	SoftBody::BuildCircles(m_physicsScene, glm::vec2(0, -30), 5.0f, 5.0f, 6.f, sc);
+	SoftBody::BuildBoxes(m_physicsScene, glm::vec2(50, -30), 5.0f, 5.0f, 6.f, sd);
+
+	Circle* ball = new Circle(glm::vec2(0, -30), glm::vec2(0), 2.f, 2, glm::vec4(1, 1, 1, 1), false);
+	m_physicsScene->AddActor(ball);
 #endif
 }
 
