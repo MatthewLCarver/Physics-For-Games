@@ -8,6 +8,7 @@ public:
     ~Circle();
     
     virtual void Draw(float _alpha);
+    virtual bool IsInside(glm::vec2 _point) override;
 
     // Getter
     float GetRadius()

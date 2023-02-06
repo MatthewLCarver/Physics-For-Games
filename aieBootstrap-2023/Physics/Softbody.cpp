@@ -79,10 +79,10 @@ void SoftBody::BuildCircles(PhysicsScene* _scene, glm::vec2 _position, float _da
 #include "SoftBody.h"
 #include "Spring.h"
 
-void SoftBody::BuildBoxes(PhysicsScene* _scene, glm::vec2 _position, float _damping, float _springForce, float _spacing, std::vector<std::string>& strings)
+void SoftBody::BuildBoxes(PhysicsScene* _scene, glm::vec2 _position, float _damping, float _springForce, float _spacing, std::vector<std::string>& _strings)
 {
-    int numColumns = strings.size();
-    int numRows = strings[0].length();
+    int numColumns = _strings.size();
+    int numRows = _strings[0].length();
 
     // traverse across the array and add balls where the ascii art says they should be
     Box** circles = new Box*[numRows* numColumns];
@@ -90,10 +90,10 @@ void SoftBody::BuildBoxes(PhysicsScene* _scene, glm::vec2 _position, float _damp
     {
         for (int j = 0; j < numColumns; j++)
         {
-            if (strings[j][i] == '0')
+            if (_strings[j][i] == '0')
             {
                 circles[i*numColumns + j] = new Box(_position + glm::vec2(i, j)*_spacing, glm::vec2(0, 0),
-                    1.0f, glm::vec2(2.5), glm::vec4(1, 0, 0, 1), false, 0, .1f);
+                    1.0f, glm::vec2(2.5), glm::vec4(1, 0, 0, 1), false, 0, .01f);
                 _scene->AddActor(circles[i*numColumns + j]);
             }
             else
@@ -146,6 +146,31 @@ void SoftBody::BuildBoxes(PhysicsScene* _scene, glm::vec2 _position, float _damp
             if(s11 && s22)
                 _scene->AddActor(new Spring(s11, s22, _damping, _springForce, _spacing * 1.414f));
             
+        }
+    }
+}
+
+void SoftBody::BuildBoxesWithoutSprings(PhysicsScene* _scene, glm::vec2 _position, float _damping, float _springForce, float _spacing, std::vector<std::string>& _strings)
+{
+    int numColumns = _strings.size();
+    int numRows = _strings[0].length();
+
+    // traverse across the array and add balls where the ascii art says they should be
+    Box** circles = new Box*[numRows* numColumns];
+    for (int i = 0; i < numRows; i++)
+    {
+        for (int j = 0; j < numColumns; j++)
+        {
+            if (_strings[j][i] == '0')
+            {
+                circles[i*numColumns + j] = new Box(_position + glm::vec2(i, j)*_spacing, glm::vec2(0, 0),
+                    1.0f, glm::vec2(2.5), glm::vec4(1, 0, 0, 1), false, 0, .01f);
+                _scene->AddActor(circles[i*numColumns + j]);
+            }
+            else
+            {
+                circles[i*numColumns + j] = nullptr;
+            }
         }
     }
 }

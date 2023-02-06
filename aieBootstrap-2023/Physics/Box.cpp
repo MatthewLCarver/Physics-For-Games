@@ -7,7 +7,7 @@ Box::Box(glm::vec2 _position, glm::vec2 _velocity, float _mass, glm::vec2 _exten
 {
     m_extents = _extents;
     m_color = _color;
-	m_moment = 1.0f / 12.0f * m_mass * (GetExtents().x * 2) * (GetExtents().y * 2);
+	m_moment = 1.0f / 3.0f * m_mass * (GetExtents().x * 2) * (GetExtents().y * 2);
 	m_elasticity = _elasticity;
 	m_orientation = _orientation;	
 }
@@ -15,18 +15,39 @@ Box::Box(glm::vec2 _position, glm::vec2 _velocity, float _mass, glm::vec2 _exten
 
 Box::~Box()
 {
+	
 }
 
-/*
 void Box::FixedUpdate(glm::vec2 _gravity, float _timeStep)
 {
-	if (length(m_velocity) > MAX_BOX_LINEAR_THRESHOLD) 
-		m_velocity = normalize(m_velocity) * MAX_BOX_LINEAR_THRESHOLD;
+	CalculateAxes();
+
+	if(m_isKinematic)
+	{
+		m_velocity = glm::vec2(0);
+		m_angularVelocity = 0;
+		return;
+	}
+
+	m_lastPosition = m_position;
+	m_position += m_velocity * _timeStep;
     
-	if (abs(m_angularVelocity) < MAX_BOX_ANGULAR_THRESHOLD) 
-		m_angularVelocity = MAX_BOX_ANGULAR_THRESHOLD;
+	ApplyForce(_gravity * m_mass * _timeStep, glm::vec2(0));
+
+	m_orientation += m_angularVelocity * _timeStep;
+	m_velocity -= m_velocity * m_linearDrag * _timeStep;
+	m_angularVelocity -= m_angularVelocity * m_angularDrag * _timeStep;
+
+	if(length(m_velocity) < MIN_LINEAR_THRESHOLD_BOX)
+	{
+		m_velocity = glm::vec2(0);
+	}
+	if(abs(m_angularVelocity) < MIN_ANGULAR_THRESHOLD_BOX)
+	{
+		m_angularVelocity = 0;
+	}
 }
-*/
+
 
 void Box::Draw(float _alpha)
 {
@@ -43,6 +64,13 @@ void Box::Draw(float _alpha)
     aie::Gizmos::add2DTri(p1, p2, p4, m_color);
     aie::Gizmos::add2DTri(p1, p4, p3, m_color);
 }
+
+bool Box::IsInside(glm::vec2 _point)
+{
+	// check if the point is inside the box
+	return glm::distance(_point, m_position) <= m_extents.x;
+}
+
 
 // check if any of the other box's corners are inside this box
 //bool Box::CheckBoxCorners(const Box& _box, glm::vec2& _contact, int& _numContacts, float& _pen, glm::vec2& _edgeNormal)
@@ -69,10 +97,14 @@ bool Box::CheckBoxCorners(Box& _box, glm::vec2& _contact, int& _numContacts, flo
 
 			// update the extents in each cardinal direction in our box's space
 			// (ie extents along the separating axes)
-			if (first || p0.x < minX) minX = p0.x;
-			if (first || p0.x > maxX) maxX = p0.x;
-			if (first || p0.y < minY) minY = p0.y;
-			if (first || p0.y > maxY) maxY = p0.y;
+			if (first || p0.x < minX)
+				minX = p0.x;
+			if (first || p0.x > maxX)
+				maxX = p0.x;
+			if (first || p0.y < minY)
+				minY = p0.y;
+			if (first || p0.y > maxY)
+				maxY = p0.y;
 
 			// if this corner is inside the box, add it to the list of contact points
 			if (p0.x >= -m_extents.x && p0.x <= m_extents.x &&

@@ -65,12 +65,12 @@ void PhysicsApp::update(float _deltaTime) {
 	m_currentExhaustIncrementTime -= _deltaTime;
 	if(m_currentExhaustIncrementTime <= 0.0f)
 	{
-		DemoUpdate(nullptr, _deltaTime);
+		DemoUpdate(input, _deltaTime);
 		m_currentExhaustIncrementTime = m_exhaustIncrementTime; 
 	}
 #endif
 
-	DemoUpdate(nullptr, _deltaTime);
+	DemoUpdate(input, _deltaTime);
 	
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
@@ -83,14 +83,16 @@ void PhysicsApp::draw() {
 	clearScreen();
 
 	// begin drawing sprites
+	m_2dRenderer->setCameraPos(0, 0);
+
+	// begin drawing sprites
 	m_2dRenderer->begin();
 
-	// draw your stuff here!
-	static float aspectRatio = 16.0f/9.0f;
-	aie::Gizmos::draw2D(glm::ortho<float>
-			(-100, 100,
-			-100 / aspectRatio, 100 / aspectRatio,
-			-1.0f, 1.0f));
+	static float aspectRatio = 16 / 9.f;
+	aie::Gizmos::draw2D(
+		glm::ortho<float>(-m_extents, m_extents,
+		-m_extents / m_aspectRatio, m_extents / m_aspectRatio,
+		-1.0f, 1.0f));
 	
 	// output some text, uses the last used colour
 	m_2dRenderer->drawText(m_font, "Press ESC to quit", 0, 0);
@@ -249,10 +251,10 @@ void PhysicsApp::DemoStartUp(int _num)
 	m_physicsScene->AddActor(plane1);
 #endif
 #ifdef BoxtoBoxCollision
-	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY * 5));
+	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
 
-	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 100.0f, glm::vec2(5), glm::vec4(1, 1, 0, 1));
-	Box* box2 = new Box(glm::vec2 (9.0f, 20), glm::vec2(0), 20.0f, glm::vec2(5), glm::vec4(0, 1, 1, 1));
+	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 100.0f, glm::vec2(5), glm::vec4(1, 1, 0, 1), false, 0.0f, .1f);
+	Box* box2 = new Box(glm::vec2 (8.0f, 20), glm::vec2(0), 20.0f, glm::vec2(5), glm::vec4(0, 1, 1, 1), false, 0.0f, .1f);
 	Plane* plane1 = new Plane(glm::vec2(0, 1), -50);
 
 	m_physicsScene->AddActor(box1);
@@ -263,9 +265,11 @@ void PhysicsApp::DemoStartUp(int _num)
 	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
 
 	// create a box
-	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 10.0f, glm::vec2(10, 2), glm::vec4(1, 0, 0, 1), true);
-	Box* box2 = new Box(glm::vec2 (10, 0), glm::vec2(0), 10.0f, glm::vec2(2, 10), glm::vec4(1, 0, 0, 1), true);
-	Box* box3 = new Box(glm::vec2 (-10, 0), glm::vec2(0), 10.0f, glm::vec2(2, 10), glm::vec4(1, 0, 0, 1), true);
+	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 10.0f, glm::vec2(10, 2), glm::vec4(1, 0, 0, 1), true, 0, .3f);
+	Box* box2 = new Box(glm::vec2 (10, 0), glm::vec2(0), 10.0f, glm::vec2(2, 10), glm::vec4(1, 0, 0, 1), true, 0, .3f);
+	Box* box3 = new Box(glm::vec2 (-10, 0), glm::vec2(0), 10.0f, glm::vec2(2, 10), glm::vec4(1, 0, 0, 1), true, 0, .3f);
+	Box* box4 = new Box(glm::vec2 (-30, 0), glm::vec2(0), 10.0f, glm::vec2(10), glm::vec4(1, 0, 0, 1), true, 0, .3f);
+	Box* box5 = new Box(glm::vec2 (-30, 0), glm::vec2(0), 10.0f, glm::vec2(10, 2), glm::vec4(1, 0, 0, 1), true, 0, .3f);
 	Circle* circle1 = new Circle(glm::vec2(8, 20), glm::vec2(0), 1.0f, 4, glm::vec4(0, 0, 1, 1), false);
 	Plane* plane1 = new Plane(glm::vec2(0, 1), -50);
 	box1->SetKinematic(true);
@@ -275,6 +279,8 @@ void PhysicsApp::DemoStartUp(int _num)
 	m_physicsScene->AddActor(box1);
 	m_physicsScene->AddActor(box2);
 	m_physicsScene->AddActor(box3);
+	m_physicsScene->AddActor(box4);
+	m_physicsScene->AddActor(box5);
 	m_physicsScene->AddActor(circle1);
 	m_physicsScene->AddActor(plane1);
 #endif
@@ -305,19 +311,32 @@ void PhysicsApp::DemoStartUp(int _num)
 #ifdef SoftbodyTest
 	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
 
-	Plane* plane = new Plane(glm::vec2(0, 1), -30);
+	Plane* plane = new Plane(glm::vec2(0, 1), -50);
 	m_physicsScene->AddActor(plane);
 
 	/*Plane* planeD = new Plane(glm::vec2(.707f, .707f), -50);
 	m_physicsScene->AddActor(planeD);*/
 
 	std::vector<std::string> sb;
-	sb.push_back("000000");
-	sb.push_back("000000");
-	sb.push_back("00....");
-	sb.push_back("00....");
-	sb.push_back("000000");
-	sb.push_back("000000");
+	sb.push_back("000000---00000");
+	sb.push_back("000000---00000");
+	sb.push_back("000000---00000");
+	sb.push_back("00000000000000");
+	sb.push_back("00000000000000");
+	/*sb.push_back("00000000000000");
+	sb.push_back("00000000000000");
+	sb.push_back("00000000000000");
+	sb.push_back("----0000000---");
+	sb.push_back("----0000000---");
+	sb.push_back("----0000000---");
+	sb.push_back("----0000000---");
+	sb.push_back("--00000000000-");
+	sb.push_back("---000---000--");
+	sb.push_back("----00---00---");
+	sb.push_back("-----00000----");
+	sb.push_back("------000-----");
+	sb.push_back("-------0------");*/
+	
 
 	std::vector<std::string> sc;
 	sc.push_back("..00..");
@@ -336,12 +355,46 @@ void PhysicsApp::DemoStartUp(int _num)
 	sd.push_back("..00..");
 
 
-	SoftBody::BuildBoxes(m_physicsScene, glm::vec2(-50, -30), 5.0f, 5.0f, 6.f, sb);
-	SoftBody::BuildCircles(m_physicsScene, glm::vec2(0, -30), 5.0f, 5.0f, 6.f, sc);
-	SoftBody::BuildBoxes(m_physicsScene, glm::vec2(50, -30), 5.0f, 5.0f, 6.f, sd);
+	SoftBody::BuildBoxes(m_physicsScene, glm::vec2(-50, -49), -10.0f, 5000.0f, 5.1f, sb);
+	//SoftBody::BuildBoxesWithoutSprings(m_physicsScene, glm::vec2(-50, -49), 500.0f, 5.0f, 5.f, sb);
+	//SoftBody::BuildCircles(m_physicsScene, glm::vec2(0, -30), 5.0f, 5.0f, 6.f, sc);
+	//SoftBody::BuildBoxes(m_physicsScene, glm::vec2(50, -25), 500.0f, 5.0f, 6.f, sd);
 
-	Circle* ball = new Circle(glm::vec2(0, -30), glm::vec2(0), 2.f, 2, glm::vec4(1, 1, 1, 1), false);
+	/*Circle* ball = new Circle(glm::vec2(0, -30), glm::vec2(0), 2.f, 2, glm::vec4(0, 1, 0, 1), false);
+	m_physicsScene->AddActor(ball);*/
+#endif
+#ifdef MouseTest
+	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
+
+	Plane* plane = new Plane(glm::vec2(0, 1), -50);
+	m_physicsScene->AddActor(plane);
+
+	Circle* ball = new Circle(glm::vec2(0, -50), glm::vec2(0), 2.f, 2, glm::vec4(0, 1, 0, 1), false);
 	m_physicsScene->AddActor(ball);
+	
+	Box* box = new Box(glm::vec2(10, -50), glm::vec2(0), 2.f, glm::vec2(2, 2), glm::vec4(1, 0, 0, 1),
+		false, 0.0f, 0.05f);
+	m_physicsScene->AddActor(box);
+#endif
+#ifdef Pool
+	m_physicsScene->SetGravity(glm::vec2(0));
+
+	Plane* plane1 = new Plane(glm::vec2(0, 1), -50);
+	m_physicsScene->AddActor(plane1);
+	Plane* plane2 = new Plane(glm::vec2(0, -1), -50);
+	m_physicsScene->AddActor(plane2);
+	Plane* plane3 = new Plane(glm::vec2(1, 0), -95);
+	m_physicsScene->AddActor(plane3);
+	Plane* plane4 = new Plane(glm::vec2(-1, 0), -95);
+	m_physicsScene->AddActor(plane4);
+	
+	
+	std::vector<std::string> sb;
+	sb.push_back("000000---00000");
+	sb.push_back("000000---00000");
+	sb.push_back("000000---00000");
+	sb.push_back("00000000000000");
+	sb.push_back("00000000000000");
 #endif
 }
 
@@ -374,9 +427,38 @@ void PhysicsApp::DemoUpdate(aie::Input* _input, float _dt)
 	std::cout << "Box1 Rotation: " << box1->GetOrientation() << "				Box2 Rotation: " << box2->GetOrientation() << std::endl;
 	std::cout << "Box1 Angular Velocity: " << box1->GetAngularVelocity() << "			Box2 Angular Velocity: " << box2->GetAngularVelocity() << std::endl;*/	
 #endif
+#ifdef SoftbodyTest
+	// DEBUGGING CODE
+	Box* box1 = dynamic_cast<Box*>(m_physicsScene->GetActors()[1]);
+	std::cout << "Box1 Angular Velocity: " << box1->GetAngularVelocity() << std::endl;
+#endif
+
+	if (_input->isMouseButtonDown(0))
+	{
+		int xScreen, yScreen;
+		_input->getMouseXY(&xScreen, &yScreen);
+		glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
+
+		aie::Gizmos::add2DCircle(worldPos, .5f, 32, glm::vec4(0, 0, 1, 1));
+	}
 }
 
 float PhysicsApp::DegreeToRadian(float _degree)
 {
 	return _degree * (PI / 180.0f); 
+}
+
+glm::vec2 PhysicsApp::ScreenToWorld(glm::vec2 _screenPos)
+{
+	glm::vec2 worldPos = _screenPos;
+
+	// move the centre of the screen to (0,0)
+	worldPos.x -= getWindowWidth() / 2;
+	worldPos.y -= getWindowHeight() / 2;
+
+	// scale according to our extents
+	worldPos.x *= 2.0f * m_extents / getWindowWidth();
+	worldPos.y *= 2.0f * m_extents / (m_aspectRatio * getWindowHeight());
+
+	return worldPos;
 }

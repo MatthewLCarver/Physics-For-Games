@@ -20,14 +20,16 @@ public:
     virtual void FixedUpdate(glm::vec2 _gravity, float _timeStep) = 0;
     virtual void Draw(float _alpha) = 0;
     virtual void ResetPosition() {}
+    virtual bool IsInside(glm::vec2 _worldPos);
 
     // Getter
     ShapeType GetShapeID() const
         {return m_shapeID;}
     float GetElasticity() const
         {return m_elasticity;}
-
+    
 protected:
     ShapeType m_shapeID;
     float m_elasticity;
+    
 };

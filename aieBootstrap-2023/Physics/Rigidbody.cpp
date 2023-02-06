@@ -1,6 +1,7 @@
 ﻿#include "Rigidbody.h"
 
 #include <iostream>
+#include <glm/gtc/constants.hpp>
 
 #include "PhysicsScene.h"
 
@@ -39,6 +40,7 @@ void Rigidbody::FixedUpdate(glm::vec2 _gravity, float _timeStep)
 
     m_lastPosition = m_position;
     m_position += m_velocity * _timeStep;
+    
     ApplyForce(_gravity * m_mass * _timeStep, glm::vec2(0));
 
     m_orientation += m_angularVelocity * _timeStep;
@@ -47,7 +49,7 @@ void Rigidbody::FixedUpdate(glm::vec2 _gravity, float _timeStep)
 
     if(length(m_velocity) < MIN_LINEAR_THRESHOLD)
     {
-        m_velocity = glm::vec2(0, 0);
+        m_velocity = glm::vec2(0);
     }
     if(abs(m_angularVelocity) < MIN_ANGULAR_THRESHOLD)
     {
@@ -69,49 +71,6 @@ void Rigidbody::ApplyForceToActor(Rigidbody* _actor2, glm::vec2 _force, glm::vec
 
 void Rigidbody::ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact, glm::vec2* _collisionNormal, float _pen)
 {
-    /*// find the vector between their centres, or use the provided direction
-    // of force, and make sure it's normalised
-    glm::vec2 normal = glm::normalize(_collisionNormal ? *_collisionNormal : _actor2->GetPosition() - GetPosition());
-    glm::vec2 relativeVelocity = _actor2->GetVelocity() - GetVelocity();
-    
-    // get the vector perpendicular to the collision normal
-    glm::vec2 perp(normal.y, -normal.x);
-
-    // determine the total velocity of the contact points for the two objects, 
-    // for both linear and rotational
-
-    // 'r' is the radius from axis to application of force
-    float r1 = glm::dot(_contact - m_position, -perp);		
-    float r2 = glm::dot(_contact - _actor2->m_position, perp);
-    
-    // velocity of the contact point on this object 
-    float v1 = glm::dot(m_velocity, normal) - r1 * m_angularVelocity;
-    
-    // velocity of contact point on actor2
-    float v2 = glm::dot(_actor2->m_velocity, normal) + 
-    r2 * _actor2->m_angularVelocity;
-    
-    if (v1 > v2) // they're moving closer
-    {
-        // calculate the effective mass at contact point for each object
-        // ie how much the contact point will move due to the force applied.
-        float mass1 = 1.0f / (1.0f / m_mass + (r1*r1) / m_moment);
-        float mass2 = 1.0f / (1.0f / _actor2->m_mass + (r2*r2) / _actor2->m_moment);
-
-        // the elasticity is calculated as the average of the two objects
-        // CAN EDIT THIS LATER WITH A BETTER EQUATION FOR THE SIMULATION //
-        float elasticity = (GetElasticity() + _actor2->GetElasticity()) / 2.0f;
-
-        float j = glm::dot(-(1 + elasticity) * (relativeVelocity), normal) / 
-        glm::dot(normal, normal * ((1/m_mass) + (1/_actor2->GetMass())));
-
-        glm::vec2 force = normal * j;
-        ApplyForceToActor(_actor2, force, _contact);
-
-        if(_pen > 0)
-            PhysicsScene::ApplyContactForces(this, _actor2, normal, _pen);
-    }	*/
-
     glm::vec2 normal = glm::normalize(_collisionNormal ? *_collisionNormal : _actor2->m_position - m_position);
     glm::vec2 perp(-normal.y, normal.x);
     glm::vec2 relativeVelocity = _actor2->GetVelocity() - m_velocity;
