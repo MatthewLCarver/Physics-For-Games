@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <functional>
+
 #include "PhysicsObject.h"
 
 #include <glm/glm.hpp>
@@ -14,6 +16,8 @@ public:
     void ApplyForce(glm::vec2 _force, glm::vec2 _pos);
     void ApplyForceToActor(Rigidbody* _otherActor, glm::vec2 _force, glm::vec2 _contact);
 
+    std::function<void(PhysicsObject*)> collisionCallback;
+
     // Getters
     glm::vec2 GetPosition()
         {return m_position;}
@@ -25,11 +29,14 @@ public:
         {return m_orientation;}
     glm::vec4 GetColor()
         {return m_color;}
-    float GetKineticEnergy()
-        {return 0.5f * (m_mass*glm::dot(m_velocity, m_velocity) + 
-        m_moment * m_angularVelocity * m_angularVelocity);}
+
+    virtual float GetEnergy()
+        {return GetKineticEnergy() + GetPotentialEnergy();}
+    virtual float GetKineticEnergy()
+        {return 0.5f * glm::length(m_velocity) * glm::length(m_velocity);}
     float GetPotentialEnergy()
-        {return m_mass * -GRAVITY * m_position.y;}
+        {return m_mass * -GRAVITY * glm::length(m_position);}
+    
     glm::vec2 GetLocalX()
         {return m_localX;}
     glm::vec2 GetLocalY()
@@ -42,6 +49,7 @@ public:
         {return m_linearDrag;}
     float GetAngularDrag()
         {return m_angularDrag;}
+    
     bool IsKinematic()
         { return m_isKinematic; } 
     
@@ -60,6 +68,7 @@ public:
         { m_isKinematic = state; } 
 
     void ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact, glm::vec2* _collisionNormal = nullptr, float _pen = 0);
+    void Debug(Rigidbody* _otherActor  = nullptr);
     virtual void CalculateSmoothedPosition(float _alpha);
     void CalculateAxes();
     glm::vec2 ToWorld(glm::vec2 _contact);
@@ -88,5 +97,6 @@ protected:
     float m_linearDrag;
     float m_angularDrag;
 
-    bool m_isKinematic; 
+    bool m_isKinematic;
+    
 };

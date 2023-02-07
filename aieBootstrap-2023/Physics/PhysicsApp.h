@@ -4,6 +4,7 @@
 #include <glm/detail/type_vec.hpp>
 
 #include "Application.h"
+#include "Circle.h"
 #include "Input.h"
 #include "Renderer2D.h"
 
@@ -36,10 +37,14 @@ protected:
 public:
 	void DemoStartUp(int _num);
 	void DemoUpdate(aie::Input* _input, float _dt);
-	float DegreeToRadian(float _degree);
+	static float DegreeToRadian(float _degree);
 	glm::vec2 ScreenToWorld(glm::vec2 _screenPos);
+	void ObjectTest();
+	void OnBall2Check(PhysicsObject* other);
 
 private:
 	float m_exhaustIncrementTime = 0.25f;
 	float m_currentExhaustIncrementTime = 0.25f;
+
+	Circle* ball1;
 };

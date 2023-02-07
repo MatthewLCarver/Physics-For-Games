@@ -178,13 +178,13 @@ void PhysicsApp::DemoStartUp(int _num)
 #ifdef SymetricalNewtonsCradle
 	m_physicsScene->SetGravity(glm::vec2(0));
 
-	Circle* ball1 = new Circle(glm::vec2(-70, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
-	Circle* ball2 = new Circle(glm::vec2(-40, 0), glm::vec2(0), 4.0f, 4, glm::vec4(0, 1, 0, 1));
-	Circle* ball3 = new Circle(glm::vec2(-10, 0), glm::vec2(0), 4.0f, 4, glm::vec4(0, 0, 1, 1));
-	Circle* ball4 = new Circle(glm::vec2(10, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 1, 0, 1));
-	Circle* ball5 = new Circle(glm::vec2(40, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 0, 1, 1));
-	Circle* ball6 = new Circle(glm::vec2(70, 0), glm::vec2(0), 4.0f, 4, glm::vec4(0, 1, 1, 1));
-	Circle* ball7 = new Circle(glm::vec2(-75, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 1, 1, 1));
+	Circle* ball1 = new Circle(glm::vec2(-70, 2), glm::vec2(0), 4.0f, 4, glm::vec4(1, 0, 0, 1), false);
+	Circle* ball2 = new Circle(glm::vec2(-40, 0), glm::vec2(0), 4.0f, 4, glm::vec4(0, 1, 0, 1), false);
+	Circle* ball3 = new Circle(glm::vec2(-10, 0), glm::vec2(0), 4.0f, 4, glm::vec4(0, 0, 1, 1), false);
+	Circle* ball4 = new Circle(glm::vec2(10, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 1, 0, 1), false);
+	Circle* ball5 = new Circle(glm::vec2(40, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 0, 1, 1), false);
+	Circle* ball6 = new Circle(glm::vec2(70, 0), glm::vec2(0), 4.0f, 4, glm::vec4(0, 1, 1, 1), false);
+	Circle* ball7 = new Circle(glm::vec2(-75, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 1, 1, 1), false);
 	Plane* plane1 = new Plane(glm::vec2(1, 0), -95);
 	Plane* plane2 = new Plane(glm::vec2(-1, 0), -95);
 
@@ -253,7 +253,7 @@ void PhysicsApp::DemoStartUp(int _num)
 #ifdef BoxtoBoxCollision
 	m_physicsScene->SetGravity(glm::vec2(0, -GRAVITY));
 
-	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 100.0f, glm::vec2(5), glm::vec4(1, 1, 0, 1), false, 0.0f, .1f);
+	Box* box1 = new Box(glm::vec2 (0, 0), glm::vec2(0), 20.0f, glm::vec2(5), glm::vec4(1, 1, 0, 1), false, 0.0f, .1f);
 	Box* box2 = new Box(glm::vec2 (8.0f, 20), glm::vec2(0), 20.0f, glm::vec2(5), glm::vec4(0, 1, 1, 1), false, 0.0f, .1f);
 	Plane* plane1 = new Plane(glm::vec2(0, 1), -50);
 
@@ -396,6 +396,10 @@ void PhysicsApp::DemoStartUp(int _num)
 	sb.push_back("00000000000000");
 	sb.push_back("00000000000000");
 #endif
+
+
+	ObjectTest();
+	
 }
 
 void PhysicsApp::DemoUpdate(aie::Input* _input, float _dt)
@@ -433,6 +437,10 @@ void PhysicsApp::DemoUpdate(aie::Input* _input, float _dt)
 	std::cout << "Box1 Angular Velocity: " << box1->GetAngularVelocity() << std::endl;
 #endif
 
+	//ball1->Debug();
+
+	//std::cout << m_physicsScene->GetTotalEnergy() << std::endl;
+	
 	if (_input->isMouseButtonDown(0))
 	{
 		int xScreen, yScreen;
@@ -461,4 +469,44 @@ glm::vec2 PhysicsApp::ScreenToWorld(glm::vec2 _screenPos)
 	worldPos.y *= 2.0f * m_extents / (m_aspectRatio * getWindowHeight());
 
 	return worldPos;
+}
+
+void PhysicsApp::ObjectTest()
+{
+	m_physicsScene->SetGravity(glm::vec2(0, -9.82f));
+
+	ball1 = new Circle(glm::vec2(17, 0), glm::vec2(0), 10.0f, 4, glm::vec4(1, 0, 0, 1), false);
+	Circle* ball2 = new Circle(glm::vec2(10, -20), glm::vec2(0), 10.0f, 4, glm::vec4(0, 1, 0, 1), true);
+	
+	m_physicsScene->AddActor(ball1);
+	m_physicsScene->AddActor(ball2);
+	m_physicsScene->AddActor(new Plane(glm::vec2(0, 1), -30));
+	m_physicsScene->AddActor(new Plane(glm::vec2(1, 0), -50));
+	m_physicsScene->AddActor(new Plane(glm::vec2(-1, 0), -50));
+
+	m_physicsScene->AddActor(new Box(
+			glm::vec2 (20, 10), glm::vec2(3, 0), 10.0f, glm::vec2(4),
+			glm::vec4(0, 1, 1, 1), false, 0.0f, .05f));
+
+	m_physicsScene->AddActor(new Box(
+		glm::vec2 (-25, 10), glm::vec2(3, 0), 10.0f, glm::vec2(4),
+		glm::vec4(1, 0, 1, 1), false, 0.0f, .05f));
+
+	ball1->collisionCallback = [=](PhysicsObject* _other) 
+    {
+    	if (_other == ball2)
+    	{
+    		std::cout << "Howzat!!?" << std::endl;
+    	}
+    	return;
+    };
+	
+	ball2->collisionCallback = std::bind(&PhysicsApp::OnBall2Check, this, std::placeholders::_1);
+}
+
+void PhysicsApp::OnBall2Check(PhysicsObject* other)
+{
+	Plane* plane = dynamic_cast<Plane*>(other);
+	if (plane != nullptr)
+		std::cout << "Pong!" << std::endl;
 }

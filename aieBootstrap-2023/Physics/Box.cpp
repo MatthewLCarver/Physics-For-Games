@@ -7,7 +7,7 @@ Box::Box(glm::vec2 _position, glm::vec2 _velocity, float _mass, glm::vec2 _exten
 {
     m_extents = _extents;
     m_color = _color;
-	m_moment = 1.0f / 3.0f * m_mass * (GetExtents().x * 2) * (GetExtents().y * 2);
+	m_moment = 1.0f / 3.0f * m_mass * GetWidth() * GetHeight();
 	m_elasticity = _elasticity;
 	m_orientation = _orientation;	
 }
@@ -15,7 +15,6 @@ Box::Box(glm::vec2 _position, glm::vec2 _velocity, float _mass, glm::vec2 _exten
 
 Box::~Box()
 {
-	
 }
 
 void Box::FixedUpdate(glm::vec2 _gravity, float _timeStep)

@@ -6,7 +6,7 @@
 class Plane : public PhysicsObject
 {
 public:
-    Plane(glm::vec2 _normal, float distance);
+    Plane(glm::vec2 _normal, float _distance);
     ~Plane();
 
     virtual void FixedUpdate(glm::vec2 _gravity, float _timeStep);
@@ -16,6 +16,11 @@ public:
 
     glm::vec2 GetNormal() { return m_normal; }
     float GetDistance() { return m_distanceToOrigin; }
+
+    virtual float GetEnergy() override
+        { return 0;}
+    virtual float GetKineticEnergy() override
+        { return 0;}
 
 protected:
     glm::vec2 m_normal;

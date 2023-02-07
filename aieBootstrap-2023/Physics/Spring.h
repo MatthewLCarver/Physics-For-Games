@@ -26,4 +26,9 @@ public:
     float m_damping;
     float m_restLength;
     float m_springCoefficient;		// the restoring force;
+
+    virtual float GetEnergy() override
+        {return 0;}
+    virtual float GetKineticEnergy() override
+        {return 0;}
 };

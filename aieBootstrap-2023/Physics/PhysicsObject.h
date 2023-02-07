@@ -28,6 +28,9 @@ public:
     float GetElasticity() const
         {return m_elasticity;}
     
+    virtual float GetKineticEnergy() = 0;
+    virtual float GetEnergy() = 0;
+    
 protected:
     ShapeType m_shapeID;
     float m_elasticity;

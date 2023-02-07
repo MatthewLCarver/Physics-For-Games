@@ -19,7 +19,7 @@
 //#define AsymmetricalNewtonsCradle
 //#define BoxToPlaneCollision
 //#define BoxtoCircleCollision
-#define BoxtoBoxCollision
+//#define BoxtoBoxCollision
 //#define PhysicsBucket
 //#define SpringExperiment
 //#define SoftbodyTest

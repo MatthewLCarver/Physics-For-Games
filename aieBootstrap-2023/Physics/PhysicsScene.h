@@ -33,6 +33,7 @@ public:
 
     void CheckForCollision();
     static void ApplyContactForces(Rigidbody* body1, Rigidbody* body2, glm::vec2 norm, float pen);
+    float GetTotalEnergy();
 
     // Setters
     void SetGravity(const glm::vec2 _gravity)

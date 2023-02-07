@@ -264,11 +264,11 @@ void PhysicsScene::Draw()
 
 void PhysicsScene::CheckForCollision()
 {
-    int actorCount = (int)m_actors.size();
+    int actorCount = m_actors.size();
 
+    //need to check for collisions against all objects except this one.
     for (int outer = 0; outer < actorCount - 1; outer++)
     {
-        //need to check for collisions against all objects except this one.
         for (int inner = outer + 1; inner < actorCount; inner++)
         {
             PhysicsObject* object1 = m_actors[outer];
@@ -276,16 +276,13 @@ void PhysicsScene::CheckForCollision()
             int shapeId1 = object1->GetShapeID();
             int shapeId2 = object2->GetShapeID();
 
-            // this check will ensure we don't include any joints 
-            // in the collision checks
-            if (shapeId1 < 0 || shapeId2 < 0)
-                continue;
-
+            // using function pointers
             int functionIdx = (shapeId1 * SHAPE_COUNT) + shapeId2;
             fn collisionFunctionPtr = collisionFunctionArray[functionIdx];
-            if(collisionFunctionPtr != nullptr)
+            if (collisionFunctionPtr != nullptr)
             {
-                collisionFunctionPtr(object1, object2);
+                // did a collision occur?
+                collisionFunctionPtr(object1, object2);        
             }
         }
     }
@@ -300,4 +297,15 @@ void PhysicsScene::ApplyContactForces(Rigidbody* body1, Rigidbody* body2, glm::v
     body1->SetPosition(body1->GetPosition() - body1Factor * norm * pen);
     if (body2) 
         body2->SetPosition(body2->GetPosition() + (1 - body1Factor) * norm * pen);
+}
+
+float PhysicsScene::GetTotalEnergy()
+{
+    float total = 0;
+    for (auto it = m_actors.begin(); it != m_actors.end(); it++)
+    {
+        PhysicsObject* obj = *it;
+        total += obj->GetEnergy();
+    }
+    return total;
 }
