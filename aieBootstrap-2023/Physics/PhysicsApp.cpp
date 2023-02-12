@@ -1,104 +1,181 @@
 #include "PhysicsApp.h"
+#include "PhysicsApp.h"
 
-#include <Gizmos.h>
-#include <gl_core_4_4.h>
 #include <iostream>
-
-#include "Demos.h"
-#include "Font.h"
-#include "Input.h"
-#include "Texture.h"
-
 #include <glm/ext.hpp>
 
 #include "Box.h"
 #include "Circle.h"
+#include "Texture.h"
+#include "Font.h"
+#include "Gizmos.h"
+#include "Input.h"
 #include "PhysicsScene.h"
+#include "Demos.h"
 #include "Plane.h"
 #include "SoftBody.h"
 #include "Spring.h"
 
 PhysicsApp::PhysicsApp()
 {
+	
 }
 
 PhysicsApp::~PhysicsApp()
 {
 }
 
-bool PhysicsApp::startup()
+bool PhysicsApp::Startup()
 {
-	// increase the 2D line count to maximise the objects we can draw
-	aie::Gizmos::create(225U, 225U, 65535U, 65535U);
+    //Increase the 2D line count to maximise the objects we can draw
+    aie::Gizmos::create(225U, 225U, 65535U, 65535U);
+
+    m_2dRenderer = new aie::Renderer2D();
 	
-	m_2dRenderer = new aie::Renderer2D();
+    // TODO: remember to change this when redistributing a build!
+    // the following path would be used instead: "./font/consolas.ttf"
+    m_font = new aie::Font("../bin/font/consolas.ttf", 32);
 
-	// TODO: remember to change this when redistributing a build!
-	// the following path would be used instead: "./font/consolas.ttf"
-	m_font = new aie::Font("../bin/font/consolas.ttf", 32);
+    m_physicsScene = new PhysicsScene();
 
-	m_physicsScene = new PhysicsScene();
-	m_physicsScene->SetTimeStep(0.01f);
+    m_physicsScene->SetTimeStep(0.01f);
 
-	DemoStartUp(1);
-	
-	return true;
+    DemoStartUp(1);
+
+    return true;
 }
 
-void PhysicsApp::shutdown() {
-
-	delete m_font;
-	delete m_2dRenderer;
+void PhysicsApp::Shutdown()
+{
+    delete m_font;
+    delete m_2dRenderer;
 }
 
-void PhysicsApp::update(float _deltaTime) {
+void PhysicsApp::Update(float deltaTime)
+{
+    // input example
+    aie::Input* input = aie::Input::getInstance();
 
-	// input example
-	aie::Input* input = aie::Input::getInstance();
+    aie::Gizmos::clear();
 
-	aie::Gizmos::clear();
-
-	m_physicsScene->Update(_deltaTime);
+    m_physicsScene->Update(deltaTime);
 	m_physicsScene->Draw();
 
-#ifdef SimulatingRocket
-	m_currentExhaustIncrementTime -= _deltaTime;
-	if(m_currentExhaustIncrementTime <= 0.0f)
-	{
-		DemoUpdate(input, _deltaTime);
-		m_currentExhaustIncrementTime = m_exhaustIncrementTime; 
-	}
-#endif
-
-	DemoUpdate(input, _deltaTime);
+	DemoUpdates(input, deltaTime);
 	
-	// exit the application
-	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
-		quit();
+    // exit the application
+    if(input->isKeyDown(aie::INPUT_KEY_ESCAPE))
+        quit();
 }
 
-void PhysicsApp::draw() {
+void PhysicsApp::draw()
+{
 
 	// wipe the screen to the background colour
 	clearScreen();
 
-	// begin drawing sprites
-	m_2dRenderer->setCameraPos(0, 0);
+	
 
 	// begin drawing sprites
 	m_2dRenderer->begin();
-
-	static float aspectRatio = 16 / 9.f;
-	aie::Gizmos::draw2D(
-		glm::ortho<float>(-m_extents, m_extents,
-		-m_extents / m_aspectRatio, m_extents / m_aspectRatio,
-		-1.0f, 1.0f));
 	
-	// output some text, uses the last used colour
-	m_2dRenderer->drawText(m_font, "Press ESC to quit", 0, 0);
+    // draw your stuff here!
+    aie::Gizmos::draw2D(glm::ortho<float>(-m_extents, m_extents,
+                                          -m_extents / m_aspectRatio,
+                                          m_extents / m_aspectRatio,
+                                          -1.0f, 1.0f));
 
-	// done drawing sprites
-	m_2dRenderer->end();
+	
+	// 2d tiled array background
+	for (int y = 0; y < getWindowHeight() / m_backgroundTexture->getHeight() + 2; y++)
+	{
+		for (int x = 0; x < getWindowWidth() / m_backgroundTexture->getWidth(); x++)
+		{
+			m_2dRenderer->drawSprite(m_backgroundTexture,
+				x * m_backgroundTexture->getWidth() + m_backgroundTexture->getWidth() / 2,
+				y * m_backgroundTexture->getHeight() - m_backgroundTexture->getHeight() / 2,
+				m_backgroundTexture->getWidth(),
+				m_backgroundTexture->getHeight(),
+				0, 0);
+		}
+	}
+
+	m_2dRenderer->drawSprite(m_tableTexture,20, -6,
+		getWindowWidth()-25, getWindowHeight() - 90, 0, 0, 00, 0);
+	
+    // output some text, uses the last used colour
+    m_2dRenderer->drawText(m_font, "Press ESC to quit", 0, 0);
+	
+    // done drawing sprites
+    m_2dRenderer->end();
+}
+
+void PhysicsApp::PoolSetup()
+{
+	m_backgroundTexture = new aie::Texture("../bin/textures/Pool/Floor.png");
+	m_tableTexture = new aie::Texture("../bin/textures/Pool/TransparentTable.png");
+	
+    m_physicsScene->SetGravity(glm::vec2(0));
+
+    //Circle* ball1 = new Circle(glm::vec2(20, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
+    /*Circle* ball2 = new Circle(glm::vec2(0, -20), glm::vec2(0), 4.0f, 4, glm::vec4(0, 1, 0, 1));
+    ball2->SetKinematic(true);
+    ball2->SetTrigger(true);*/
+
+    //m_physicsScene->AddActor(ball1);
+    //m_physicsScene->AddActor(ball2);
+    /*m_physicsScene->AddActor(new Plane(glm::vec2(0, 1), -30));
+    m_physicsScene->AddActor(new Plane(glm::vec2(1, 0), -50));
+    m_physicsScene->AddActor(new Plane(glm::vec2(-1, 0), -50));*/
+
+	SetupPockets();
+
+	Circle* whiteBall = new Circle(glm::vec2(75, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 1, 1, 1), false, false);
+	m_physicsScene->AddActor(whiteBall);
+
+	
+    ///Binding the trigger function to the ball2 using Lambda expressions.
+    /*ball2->TriggerEnterCallback = [=](PhysicsObject* _other)
+    {
+        std::cout << "Enter: " << _other << " ";
+        if(_other == dynamic_cast<Box*>(_other))
+        {
+            std::cout << "Box" << std::endl;
+        }
+        if(_other == dynamic_cast<Circle*>(_other))
+        {
+            std::cout << "Circle" << std::endl;
+        }
+    };
+    ball2->TriggerExitCallback = [=](PhysicsObject* _other)
+    {
+        std::cout << "Exit:" << _other << " ";
+        if(_other == dynamic_cast<Box*>(_other))
+        {
+            std::cout << "Box" << std::endl;
+            m_physicsScene->RemoveActor(_other);
+        }
+        else if(_other == dynamic_cast<Circle*>(_other))
+        {
+            std::cout << "Circle" << std::endl;
+        }
+    };*/
+}
+
+glm::vec2 PhysicsApp::ScreenToWorld(glm::vec2 screenPos)
+{
+    glm::vec2 worldPos = screenPos;
+
+    // move the centre of the screen to (0,0)
+    worldPos.x -= getWindowWidth() / 2;
+    worldPos.y -= getWindowHeight() / 2;
+
+    // scale according to our extents
+    worldPos.x *= 2.0f * m_extents / getWindowWidth();
+    worldPos.y *= 2.0f * m_extents / (m_aspectRatio * getWindowHeight());
+
+
+    return worldPos;
 }
 
 void PhysicsApp::DemoStartUp(int _num)
@@ -376,137 +453,161 @@ void PhysicsApp::DemoStartUp(int _num)
 		false, 0.0f, 0.05f);
 	m_physicsScene->AddActor(box);
 #endif
-#ifdef Pool
-	m_physicsScene->SetGravity(glm::vec2(0));
-
-	Plane* plane1 = new Plane(glm::vec2(0, 1), -50);
-	m_physicsScene->AddActor(plane1);
-	Plane* plane2 = new Plane(glm::vec2(0, -1), -50);
-	m_physicsScene->AddActor(plane2);
-	Plane* plane3 = new Plane(glm::vec2(1, 0), -95);
-	m_physicsScene->AddActor(plane3);
-	Plane* plane4 = new Plane(glm::vec2(-1, 0), -95);
-	m_physicsScene->AddActor(plane4);
 	
-	
-	std::vector<std::string> sb;
-	sb.push_back("000000---00000");
-	sb.push_back("000000---00000");
-	sb.push_back("000000---00000");
-	sb.push_back("00000000000000");
-	sb.push_back("00000000000000");
-#endif
-
-
-	ObjectTest();
-	
+	PoolSetup();
 }
 
-void PhysicsApp::DemoUpdate(aie::Input* _input, float _dt)
+void PhysicsApp::DemoUpdates(aie::Input* _input, float _dt)
 {
 #ifdef SimulatingRocket
-	Circle* rocketCircle = dynamic_cast<Circle*>(m_physicsScene->GetActors()[0]);
-	float M =20.f;
-	if(rocketCircle != nullptr && rocketCircle->GetMass() > 0.0f)
-	{
-		rocketCircle->SetMass(rocketCircle->GetMass() - M);
-		if(rocketCircle->GetMass() <= 0.0f)
-			return;
+    Circle* rocketCircle = dynamic_cast<Circle*>(m_physicsScene->GetActors()[0]);
+    float M =20.f;
+    if(rocketCircle != nullptr && rocketCircle->GetMass() > 0.0f)
+    {
+        rocketCircle->SetMass(rocketCircle->GetMass() - M);
+        if(rocketCircle->GetMass() <= 0.0f)
+            return;
 		
-		Circle* exhaustCircle = new Circle(rocketCircle->GetPosition() + glm::vec2(0, -rocketCircle->GetRadius() - .5f),
-			glm::vec2(0), M, M/20,
-			glm::vec4(0, 1, 0, 1));
-		m_physicsScene->AddActor(exhaustCircle);
-		CullPhysicsActors();
+        Circle* exhaustCircle = new Circle(rocketCircle->GetPosition() + glm::vec2(0, -rocketCircle->GetRadius() - .5f),
+            glm::vec2(0), M, M/20,
+            glm::vec4(0, 1, 0, 1));
+        m_physicsScene->AddActor(exhaustCircle);
+        CullPhysicsActors();
 		
-		rocketCircle->ApplyForceToActor(exhaustCircle, glm::vec2(0, -(M*20)));
+        rocketCircle->ApplyForceToActor(exhaustCircle, glm::vec2(0, -(M*20)));
 		
-	}
+    }
 #endif
 #ifdef BoxtoBoxCollision
-	// DEBUGGING CODE
-	/*Box* box1 = dynamic_cast<Box*>(m_physicsScene->GetActors()[0]);
-	Box* box2 = dynamic_cast<Box*>(m_physicsScene->GetActors()[1]);
-	std::cout << "Box1 Velocity: " << box1->GetVelocity().x << ", " << box1->GetVelocity().y << "			Box2 Velocity: " << box2->GetVelocity().x << ", " << box2->GetVelocity().y << std::endl;
-	std::cout << "Box1 Rotation: " << box1->GetOrientation() << "				Box2 Rotation: " << box2->GetOrientation() << std::endl;
-	std::cout << "Box1 Angular Velocity: " << box1->GetAngularVelocity() << "			Box2 Angular Velocity: " << box2->GetAngularVelocity() << std::endl;*/	
-#endif
+    // DEBUGGING CODE
+    /*Box* box1 = dynamic_cast<Box*>(m_physicsScene->GetActors()[0]);
+    Box* box2 = dynamic_cast<Box*>(m_physicsScene->GetActors()[1]);
+    std::cout << "Box1 Velocity: " << box1->GetVelocity().x << ", " << box1->GetVelocity().y << "			Box2 Velocity: " << box2->GetVelocity().x << ", " << box2->GetVelocity().y << std::endl;
+    std::cout << "Box1 Rotation: " << box1->GetOrientation() << "				Box2 Rotation: " << box2->GetOrientation() << std::endl;
+    std::cout << "Box1 Angular Velocity: " << box1->GetAngularVelocity() << "			Box2 Angular Velocity: " << box2->GetAngularVelocity() << std::endl;*/	
+    #endif
 #ifdef SoftbodyTest
-	// DEBUGGING CODE
-	Box* box1 = dynamic_cast<Box*>(m_physicsScene->GetActors()[1]);
-	std::cout << "Box1 Angular Velocity: " << box1->GetAngularVelocity() << std::endl;
+    // DEBUGGING CODE
+    Box* box1 = dynamic_cast<Box*>(m_physicsScene->GetActors()[1]);
+    std::cout << "Box1 Angular Velocity: " << box1->GetAngularVelocity() << std::endl;
 #endif
 
-	//ball1->Debug();
 
-	//std::cout << m_physicsScene->GetTotalEnergy() << std::endl;
-	
 	if (_input->isMouseButtonDown(0))
-	{
-		int xScreen, yScreen;
-		_input->getMouseXY(&xScreen, &yScreen);
-		glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
+    {
+        int xScreen, yScreen;
+        _input->getMouseXY(&xScreen, &yScreen);
+        glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
 
-		aie::Gizmos::add2DCircle(worldPos, .5f, 32, glm::vec4(0, 0, 1, 1));
-	}
+        aie::Gizmos::add2DCircle(worldPos, .5f, 24, glm::vec4(0, 0, 1, 1));
+    }
+
+	// Moves the camera in Arrows
+	/*float camPosX;
+	float camPosY;
+	m_2dRenderer->getCameraPos(camPosX, camPosY);
+
+	if (_input->isKeyDown(aie::INPUT_KEY_UP))
+		camPosY += 500.0f * _dt;
+
+	if (_input->isKeyDown(aie::INPUT_KEY_DOWN))
+		camPosY -= 500.0f * _dt;
+
+	if (_input->isKeyDown(aie::INPUT_KEY_LEFT))
+		camPosX -= 500.0f * _dt;
+
+	if (_input->isKeyDown(aie::INPUT_KEY_RIGHT))
+		camPosX += 500.0f * _dt;
+
+	m_2dRenderer->setCameraPos(camPosX, camPosY);*/
+	
 }
 
 float PhysicsApp::DegreeToRadian(float _degree)
 {
-	return _degree * (PI / 180.0f); 
+    return _degree * (PI / 180.f);
 }
 
-glm::vec2 PhysicsApp::ScreenToWorld(glm::vec2 _screenPos)
+void PhysicsApp::SetupPockets()
 {
-	glm::vec2 worldPos = _screenPos;
+	// Ends of the table
+	m_physicsScene->AddActor(new Box(glm::vec2(224, -20), glm::vec2(0), 0,
+		4, glm::vec2(8, 80), glm::vec4(0, .4f, .1f, 1), true));
+	m_physicsScene->AddActor(new Box(glm::vec2(-218, -20), glm::vec2(0), 0,
+		4, glm::vec2(8, 80), glm::vec4(0, .4f, .1f, 1), true));
 
-	// move the centre of the screen to (0,0)
-	worldPos.x -= getWindowWidth() / 2;
-	worldPos.y -= getWindowHeight() / 2;
+	// Sides of the table
+	m_physicsScene->AddActor(new Box(glm::vec2(108, 83), glm::vec2(0), 0,
+		4, glm::vec2(92, 8), glm::vec4(0, .4f, .1f, 1), true));
+	m_physicsScene->AddActor(new Box(glm::vec2(-108, 83), glm::vec2(0), 0,
+		4, glm::vec2(91, 8), glm::vec4(0, .4f, .1f, 1), true));
+	m_physicsScene->AddActor(new Box(glm::vec2(108, -123), glm::vec2(0), 0,
+		4, glm::vec2(92, 8), glm::vec4(0, .4f, .1f, 1), true));
+	m_physicsScene->AddActor(new Box(glm::vec2(-108, -123), glm::vec2(0), 0,
+		4, glm::vec2(91, 8), glm::vec4(0, .4f, .1f, 1), true));
 
-	// scale according to our extents
-	worldPos.x *= 2.0f * m_extents / getWindowWidth();
-	worldPos.y *= 2.0f * m_extents / (m_aspectRatio * getWindowHeight());
+	// Angled Side of the table
+	// Top Left
+	m_physicsScene->AddActor(new Box(glm::vec2(-216, 64), glm::vec2(0), DegreeToRadian(50),
+		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
+	m_physicsScene->AddActor(new Box(glm::vec2(-201, 79), glm::vec2(0), DegreeToRadian(50),
+		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
+	// Top Right
+	m_physicsScene->AddActor(new Box(glm::vec2(221, 64), glm::vec2(0), DegreeToRadian(-50),
+		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
+	m_physicsScene->AddActor(new Box(glm::vec2(204, 79), glm::vec2(0), DegreeToRadian(-50),
+		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
+	// Bottom Left
+	m_physicsScene->AddActor(new Box(glm::vec2(-216, -104), glm::vec2(0), DegreeToRadian(-50),
+		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
+	m_physicsScene->AddActor(new Box(glm::vec2(-201, -119), glm::vec2(0), DegreeToRadian(-50),
+		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
+	// Bottom Right
+	m_physicsScene->AddActor(new Box(glm::vec2(221, -104), glm::vec2(0), DegreeToRadian(50),
+		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
+	m_physicsScene->AddActor(new Box(glm::vec2(204, -119), glm::vec2(0), DegreeToRadian(50),
+		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
 
-	return worldPos;
-}
 
-void PhysicsApp::ObjectTest()
-{
-	m_physicsScene->SetGravity(glm::vec2(0, -9.82f));
+	// Top Centre
+	m_physicsScene->AddActor(new Box(glm::vec2(-14, 79), glm::vec2(0), DegreeToRadian(-30),
+		4, glm::vec2(.25f, 4), glm::vec4(0, .4f, .1f, 1), true));
+	m_physicsScene->AddActor(new Box(glm::vec2(14, 79), glm::vec2(0), DegreeToRadian(30),
+		4, glm::vec2(.25f, 4), glm::vec4(0, .4f, .1f, 1), true));
+	// Bottom Centre
+	m_physicsScene->AddActor(new Box(glm::vec2(-14, -119), glm::vec2(0), DegreeToRadian(30),
+		4, glm::vec2(.25f, 4), glm::vec4(0, .4f, .1f, 1), true));
+	m_physicsScene->AddActor(new Box(glm::vec2(14, -119), glm::vec2(0), DegreeToRadian(-30),
+		4, glm::vec2(.25f, 4), glm::vec4(0, .4f, .1f, 1), true));
 
-	ball1 = new Circle(glm::vec2(17, 0), glm::vec2(0), 10.0f, 4, glm::vec4(1, 0, 0, 1), false);
-	Circle* ball2 = new Circle(glm::vec2(10, -20), glm::vec2(0), 10.0f, 4, glm::vec4(0, 1, 0, 1), true);
+
 	
-	m_physicsScene->AddActor(ball1);
-	m_physicsScene->AddActor(ball2);
-	m_physicsScene->AddActor(new Plane(glm::vec2(0, 1), -30));
-	m_physicsScene->AddActor(new Plane(glm::vec2(1, 0), -50));
-	m_physicsScene->AddActor(new Plane(glm::vec2(-1, 0), -50));
-
-	m_physicsScene->AddActor(new Box(
-			glm::vec2 (20, 10), glm::vec2(3, 0), 10.0f, glm::vec2(4),
-			glm::vec4(0, 1, 1, 1), false, 0.0f, .05f));
-
-	m_physicsScene->AddActor(new Box(
-		glm::vec2 (-25, 10), glm::vec2(3, 0), 10.0f, glm::vec2(4),
-		glm::vec4(1, 0, 1, 1), false, 0.0f, .05f));
-
-	ball1->collisionCallback = [=](PhysicsObject* _other) 
-    {
-    	if (_other == ball2)
-    	{
-    		std::cout << "Howzat!!?" << std::endl;
-    	}
-    	return;
-    };
+	// Pockets
+	Circle* topRight = new Circle(glm::vec2(220, 79), glm::vec2(0), 0, 10,
+		glm::vec4(0, .1f, 0, 1), true, true);
+	Circle* topLeft = new Circle(glm::vec2(-217, 79), glm::vec2(0), 0, 10,
+		glm::vec4(0, .1f, 0, 1), true, true);
+	Circle* bottomRight = new Circle(glm::vec2(220, -120), glm::vec2(0), 0, 10,
+		glm::vec4(0, .1f, 0, 1), true, true);
+	Circle* bottomLeft = new Circle(glm::vec2(-217, -120), glm::vec2(0), 0, 10,
+		glm::vec4(0, .1f, 0, 1), true, true);
+	Circle* topCentre = new Circle(glm::vec2(0, 85), glm::vec2(0), 0, 10,
+		glm::vec4(0, .1f, 0, 1), true, true);
+	Circle* bottomCentre = new Circle(glm::vec2(0, -125), glm::vec2(0), 0, 10,
+		glm::vec4(0, .1f, 0, 1), true, true);
 	
-	ball2->collisionCallback = std::bind(&PhysicsApp::OnBall2Check, this, std::placeholders::_1);
+	m_physicsScene->AddActor(topLeft);
+	m_physicsScene->AddActor(topCentre);
+	m_physicsScene->AddActor(topRight);
+	m_physicsScene->AddActor(bottomRight);
+	m_physicsScene->AddActor(bottomCentre);
+	m_physicsScene->AddActor(bottomLeft);
+	
 }
 
-void PhysicsApp::OnBall2Check(PhysicsObject* other)
+void PhysicsApp::OnBall2Check(PhysicsObject* _other)
 {
-	Plane* plane = dynamic_cast<Plane*>(other);
+	Plane* plane = dynamic_cast<Plane*>(_other);
 	if (plane != nullptr)
 		std::cout << "Pong!" << std::endl;
 }

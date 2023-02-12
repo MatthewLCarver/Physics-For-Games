@@ -11,7 +11,7 @@ Application2D::~Application2D() {
 
 }
 
-bool Application2D::startup() {
+bool Application2D::Startup() {
 	
 	m_2dRenderer = new aie::Renderer2D();
 
@@ -25,7 +25,7 @@ bool Application2D::startup() {
 	return true;
 }
 
-void Application2D::shutdown() {
+void Application2D::Shutdown() {
 	
 	delete m_font;
 	delete m_texture;
@@ -33,7 +33,7 @@ void Application2D::shutdown() {
 	delete m_2dRenderer;
 }
 
-void Application2D::update(float deltaTime) {
+void Application2D::Update(float deltaTime) {
 
 	m_timer += deltaTime;
 
@@ -64,7 +64,7 @@ void Application2D::update(float deltaTime) {
 		quit();
 }
 
-void Application2D::draw() {
+void Application2D::EndDraw() {
 
 	// wipe the screen to the background colour
 	clearScreen();

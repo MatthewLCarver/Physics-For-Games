@@ -4,20 +4,26 @@
 class Circle : public Rigidbody
 {
 public:
-    Circle(glm::vec2 _position, glm::vec2 velocity, float _mass, float _radius, glm::vec4 _color, bool _isKinematic);
+    Circle(glm::vec2 _position, glm::vec2 _velocity, float _mass,
+        float _radius, glm::vec4 _color, bool _isKinematic, bool _isTrigger);
     ~Circle();
-    
-    virtual void Draw(float _alpha);
-    virtual bool IsInside(glm::vec2 _point) override;
 
-    // Getter
-    float GetRadius()
-        {return m_radius;}
+    virtual void Draw(float alpha);
+
+    virtual void Start() {};
+
+    //Getters
+    float GetRadius() { return m_radius; }
+    glm::vec4 GetColor() { return m_color; }
+    bool GetCollisionState() { return hasCollidedWithCircle;}
+    //Setters
+    void SetRadius(float _radius) { m_radius = _radius; }
+    void SetCollisionState(bool _state) {hasCollidedWithCircle = _state;}
+    virtual bool IsInside(glm::vec2 _point);
     
-    // Setter
-    void SetRadius (float _radius)
-        {m_radius = _radius;}
-    
+
 protected:
     float m_radius;
+    glm::vec4 m_color;
+    bool hasCollidedWithCircle = false;
 };

@@ -6,7 +6,7 @@ enum ShapeType
     JOINT = -1,
     PLANE = 0,
     CIRCLE,
-    BOX
+    BOX,
 };
 
 const int SHAPE_COUNT = 3;
@@ -14,23 +14,28 @@ const int SHAPE_COUNT = 3;
 class PhysicsObject
 {
 protected:
-    PhysicsObject(ShapeType _shape) : m_shapeID(_shape){}
+    PhysicsObject(ShapeType a_shapeID) : m_shapeID(a_shapeID)
+    {
+        m_elasticity = .8f;
+    }
 
 public:
+    //Virtuals
     virtual void FixedUpdate(glm::vec2 _gravity, float _timeStep) = 0;
     virtual void Draw(float _alpha) = 0;
-    virtual void ResetPosition() {}
-    virtual bool IsInside(glm::vec2 _worldPos);
 
-    // Getter
-    ShapeType GetShapeID() const
-        {return m_shapeID;}
-    float GetElasticity() const
-        {return m_elasticity;}
-    
-    virtual float GetKineticEnergy() = 0;
-    virtual float GetEnergy() = 0;
-    
+    virtual void ResetPosition(){}
+    virtual bool IsInside(glm::vec2 _point){ return false; }
+
+    virtual float GetKineticEnergy() =0;
+    virtual float GetEnergy() =0;
+    float GetElasticity() { return m_elasticity; }
+
+    void SetElasticity(float _elasticity) { m_elasticity = _elasticity; }
+
+    //Getter
+    ShapeType GetShapeID() { return m_shapeID; }
+
 protected:
     ShapeType m_shapeID;
     float m_elasticity;

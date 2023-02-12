@@ -1,40 +1,24 @@
 ﻿#include "Plane.h"
 
-#include <Gizmos.h>
 #include <iostream>
 
-#include "PhysicsScene.h"
-#include "Rigidbody.h"
+#include "Gizmos.h"
 
-Plane::Plane(glm::vec2 _normal, float _distance) : PhysicsObject(ShapeType::PLANE)
+Plane::Plane(glm::vec2 _normal, float _distance) : PhysicsObject(PLANE)
 {
+    //m_distanceToOrigin = 0;
+    //m_normal = glm::vec2(0, 1);
+
     m_distanceToOrigin = _distance;
     m_normal = _normal;
-    m_color = glm::vec4(1,0,1,1);
-    m_elasticity = 0.5f;
-}
-
-Plane::~Plane()
-{
 }
 
 void Plane::FixedUpdate(glm::vec2 _gravity, float _timeStep)
 {
 }
 
-void Plane::Draw(float _alpha)
+void Plane::ResetPosition()
 {
-    float lineSegmentLength = 300;
-    glm::vec2 centerPoint = m_normal * m_distanceToOrigin;
-    // easy to rotate normal through 90 degrees around z
-    glm::vec2 parallel(m_normal.y, -m_normal.x);
-    glm::vec4 colourFade = m_color;
-    colourFade.a = 0;
-    glm::vec2 start = centerPoint + (parallel * lineSegmentLength);
-    glm::vec2 end = centerPoint - (parallel * lineSegmentLength);
-    //aie::Gizmos::add2DLine(start, end, colour);
-    aie::Gizmos::add2DTri(start, end, start - m_normal*10.0f, m_color, m_color, colourFade);
-    aie::Gizmos::add2DTri(end, end - m_normal * 10.0f, start - m_normal * 10.0f, m_color, colourFade, colourFade);
 }
 
 void Plane::ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact)
@@ -58,15 +42,17 @@ void Plane::ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact)
     float mass0 = 1.0f / (1.0f / _actor2->GetMass() + (r * r) / _actor2->GetMoment());
 
     float j = -(1 + e) * velocityIntoPlane * mass0;
-
+    
+    //float j = glm::dot(-(1 + e) * (vRel), m_normal) / (1 / _actor2->GetMass());
+    
     glm::vec2 force = m_normal * j;
 
     float kePre = _actor2->GetKineticEnergy();
 
     _actor2->ApplyForce(force, _contact - _actor2->GetPosition());
 
-    if (_actor2->collisionCallback)
-        _actor2->collisionCallback(this);
+    if (_actor2->CollisionCallback)
+        _actor2->CollisionCallback(this);
 
     float pen = glm::dot(_contact, m_normal) - m_distanceToOrigin;
     PhysicsScene::ApplyContactForces(_actor2, nullptr, m_normal, pen);
@@ -75,10 +61,21 @@ void Plane::ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact)
 
     float deltaKE = kePost - kePre;
     if(deltaKE > kePost * 0.01f)
-        std::cout << "Kinetic Energy discrepancy against the Plane - greater than 1% detected!!" << std::endl;
+        std::cout << "Kinetic Energy discrepancy greater than 1% detected!!";
 }
 
-void Plane::ResetPosition()
+void Plane::Draw(float _alpha)
 {
-    PhysicsObject::ResetPosition();
+    float lineSegmentLength = 300;
+    m_color = glm::vec4(0, 1, 1, 1);
+    glm::vec2 centerPoint = m_normal * m_distanceToOrigin;
+    //Easy to rotate normal through 90 degrees around z
+    glm::vec2 parallel(m_normal.y, -m_normal.x);
+    glm::vec4 colorFade = m_color;
+    colorFade.a = 0;
+    glm::vec2 start = centerPoint + (parallel * lineSegmentLength);
+    glm::vec2 end = centerPoint - (parallel * lineSegmentLength);
+    //aie::Gizmos::add2DLine(start, end, color)
+    aie::Gizmos::add2DTri(start, end, start - m_normal * 10.f, m_color, m_color, colorFade);
+    aie::Gizmos::add2DTri(end, end - m_normal * 10.f, start - m_normal * 10.f, m_color, colorFade, colorFade);
 }

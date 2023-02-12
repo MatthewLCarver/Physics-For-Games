@@ -68,7 +68,7 @@ void Application::run(const char* title, int width, int height, bool fullscreen)
 
 	// start game loop if successfully initialised
 	if (createWindow(title,width,height, fullscreen) &&
-		startup()) {
+		Startup()){
 
 		// variables for timing
 		double prevTime = glfwGetTime();
@@ -110,7 +110,7 @@ void Application::run(const char* title, int width, int height, bool fullscreen)
 			// clear imgui
 			ImGui_NewFrame();
 
-			update(float(deltaTime));
+			Update(float(deltaTime));
 
 			draw();
 
@@ -126,7 +126,7 @@ void Application::run(const char* title, int width, int height, bool fullscreen)
 	}
 
 	// cleanup
-	shutdown();
+	Shutdown();
 	destroyWindow();
 }
 

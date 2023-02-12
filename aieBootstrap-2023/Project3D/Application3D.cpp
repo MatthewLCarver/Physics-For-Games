@@ -17,7 +17,7 @@ Application3D::~Application3D() {
 
 }
 
-bool Application3D::startup() {
+bool Application3D::Startup() {
 	
 	setBackgroundColour(0.25f, 0.25f, 0.25f);
 
@@ -33,12 +33,12 @@ bool Application3D::startup() {
 	return true;
 }
 
-void Application3D::shutdown() {
+void Application3D::Shutdown() {
 
 	Gizmos::destroy();
 }
 
-void Application3D::update(float deltaTime) {
+void Application3D::Update(float deltaTime) {
 
 	// query time since application started
 	float time = getTime();
@@ -88,7 +88,7 @@ void Application3D::update(float deltaTime) {
 		quit();
 }
 
-void Application3D::draw() {
+void Application3D::EndDraw() {
 
 	// wipe the screen to the background colour
 	clearScreen();

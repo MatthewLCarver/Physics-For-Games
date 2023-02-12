@@ -12,7 +12,7 @@ Spring::Spring(Rigidbody* _body1, Rigidbody* _body2, float _springCoeffiecient, 
     m_restLength = _restLength;
     m_contact1 = _contact1;
     m_contact2 = _contact2;
-    m_color = glm::vec4(1, 0, 0, 1);
+    //contact init at 1;
 
     if(_restLength == 0)
     {
@@ -44,11 +44,11 @@ void Spring::FixedUpdate(glm::vec2 _gravity, float _timeStep)
     // F = -kX - bv
     glm::vec2 force = direction * m_springCoefficient * (m_restLength - length) - m_damping * relativeVelocity;
 
-    // cap the spring force to 1000 N to prevent numerical instability
     const float threshold = 1000.0f;
     float forceMag = glm::length(force);
     if (forceMag > threshold)
         force *= threshold / forceMag;
+    
 
     m_body1->ApplyForce(-force * _timeStep, p1 - m_body1->GetPosition());
     m_body2->ApplyForce(force * _timeStep, p2 - m_body2->GetPosition());
@@ -59,6 +59,10 @@ void Spring::Draw(float _alpha)
     m_body1->CalculateSmoothedPosition(_alpha);
     m_body2->CalculateSmoothedPosition(_alpha);
     aie::Gizmos::add2DLine(GetContact1(), GetContact2(), glm::vec4(1, 1, 1, 1));
+}
+
+void Spring::ResetPosition()
+{
 }
 
 glm::vec2 Spring::GetContact1()

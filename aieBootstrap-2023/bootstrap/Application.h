@@ -19,9 +19,9 @@ public:
 	void run(const char* title, int width, int height, bool fullscreen);
 
 	// these functions must be implemented by a derived class
-	virtual bool startup() = 0;
-	virtual void shutdown() = 0;
-	virtual void update(float deltaTime) = 0;
+	virtual bool Startup() = 0;
+	virtual void Shutdown() = 0;
+	virtual void Update(float deltaTime) = 0;
 	virtual void draw() = 0;
 
 	// wipes the screen clear to begin a frame of drawing

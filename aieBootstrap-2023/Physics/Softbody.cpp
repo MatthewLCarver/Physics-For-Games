@@ -17,7 +17,7 @@ void SoftBody::BuildCircles(PhysicsScene* _scene, glm::vec2 _position, float _da
             if (strings[j][i] == '0')
             {
                 circles[i*numColumns + j] = new Circle(_position + glm::vec2(i, j)*_spacing, glm::vec2(0, 0),
-                    1.0f, 2.0f, glm::vec4(1, 0, 0, 1), false);
+                    1.0f, 2.0f, glm::vec4(1, 0, 0, 1), false, false);
                 _scene->AddActor(circles[i*numColumns + j]);
             }
             else
@@ -85,20 +85,27 @@ void SoftBody::BuildBoxes(PhysicsScene* _scene, glm::vec2 _position, float _damp
     int numRows = _strings[0].length();
 
     // traverse across the array and add balls where the ascii art says they should be
-    Box** circles = new Box*[numRows* numColumns];
+    Box** boxes = new Box*[numRows* numColumns];
     for (int i = 0; i < numRows; i++)
     {
         for (int j = 0; j < numColumns; j++)
         {
             if (_strings[j][i] == '0')
             {
-                circles[i*numColumns + j] = new Box(_position + glm::vec2(i, j)*_spacing, glm::vec2(0, 0),
-                    1.0f, glm::vec2(2.5), glm::vec4(1, 0, 0, 1), false, 0, .01f);
-                _scene->AddActor(circles[i*numColumns + j]);
+                boxes[i * numColumns + j] =
+                    new Box(glm::vec2(i, j) * _spacing + _position,
+                    glm::vec2(0, 0),
+                    0.0f,
+                    5.0f,
+                    glm::vec2(2.5),
+                    glm::vec4(1, 0, 0, 1),
+                    false)
+                ;
+                _scene->AddActor(boxes[i*numColumns + j]);
             }
             else
             {
-                circles[i*numColumns + j] = nullptr;
+                boxes[i*numColumns + j] = nullptr;
             }
         }
     }
@@ -108,10 +115,10 @@ void SoftBody::BuildBoxes(PhysicsScene* _scene, glm::vec2 _position, float _damp
     {
         for (int j = 1; j < numColumns; j++)
         {
-            Box* s11 = circles[i*numColumns + j];
-            Box* s01 = circles[(i-1)*numColumns + j];
-            Box* s10 = circles[i*numColumns + j-1];
-            Box* s00 = circles[(i-1)*numColumns + j-1];
+            Box* s11 = boxes[i*numColumns + j];
+            Box* s01 = boxes[(i-1)*numColumns + j];
+            Box* s10 = boxes[i*numColumns + j-1];
+            Box* s00 = boxes[(i-1)*numColumns + j-1];
 		
             // make springs to cardinal neighbours
             if (s11 && s01)
@@ -126,9 +133,9 @@ void SoftBody::BuildBoxes(PhysicsScene* _scene, glm::vec2 _position, float _damp
             bool endOfJ = j == numColumns - 1;
             bool endOfI = i == numRows - 1;
 
-            Box* s22 = (!endOfI && !endOfJ) ? circles[(i+1)*numColumns + (j+1)] : nullptr;
-            Box* s02 = !endOfJ ? circles[(i - 1)*numColumns + (j+1)] : nullptr;
-            Box* s20 = !endOfI ? circles[(i+1)*numColumns + j - 1] : nullptr;
+            Box* s22 = (!endOfI && !endOfJ) ? boxes[(i+1)*numColumns + (j+1)] : nullptr;
+            Box* s02 = !endOfJ ? boxes[(i - 1)*numColumns + (j+1)] : nullptr;
+            Box* s20 = !endOfI ? boxes[(i+1)*numColumns + j - 1] : nullptr;
 
             //Then add springs between s00 and s02, s22 and s20, and so on, to have potentially another four springs
             if(s00 && s02)
@@ -156,20 +163,27 @@ void SoftBody::BuildBoxesWithoutSprings(PhysicsScene* _scene, glm::vec2 _positio
     int numRows = _strings[0].length();
 
     // traverse across the array and add balls where the ascii art says they should be
-    Box** circles = new Box*[numRows* numColumns];
+    Box** boxes = new Box*[numRows* numColumns];
     for (int i = 0; i < numRows; i++)
     {
         for (int j = 0; j < numColumns; j++)
         {
             if (_strings[j][i] == '0')
             {
-                circles[i*numColumns + j] = new Box(_position + glm::vec2(i, j)*_spacing, glm::vec2(0, 0),
-                    1.0f, glm::vec2(2.5), glm::vec4(1, 0, 0, 1), false, 0, .01f);
-                _scene->AddActor(circles[i*numColumns + j]);
+                boxes[i*numColumns + j] =
+                    new Box(glm::vec2(i, j) * _spacing + _position,
+                    glm::vec2(0, 0),
+                    0.0f,
+                    10.0f,
+                    glm::vec2(2.5),
+                    glm::vec4(1, 0, 0, 1),
+                    false)
+                ;
+                _scene->AddActor(boxes[i*numColumns + j]);
             }
             else
             {
-                circles[i*numColumns + j] = nullptr;
+                boxes[i*numColumns + j] = nullptr;
             }
         }
     }
