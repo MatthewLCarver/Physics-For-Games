@@ -64,7 +64,7 @@ void Application2D::Update(float deltaTime) {
 		quit();
 }
 
-void Application2D::EndDraw() {
+void Application2D::draw() {
 
 	// wipe the screen to the background colour
 	clearScreen();

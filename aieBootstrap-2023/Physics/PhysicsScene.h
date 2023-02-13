@@ -25,6 +25,8 @@ public:
     //Getters 
     static glm::vec2 GetGravity() { return m_gravity; }
     float GetTimeStep() { return m_timeStep; }
+    std::vector<PhysicsObject*> GetActors()
+        {return m_actors;}
 
     void CheckForCollision();
 

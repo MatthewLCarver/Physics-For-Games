@@ -24,10 +24,6 @@ public:
 
 	virtual void Update(float deltaTime);
 	virtual void draw();
-
-	void OnBall2Check(PhysicsObject* _other);
-	void SetupPockets();
-	void PoolSetup();
 	
 	glm::vec2 ScreenToWorld(glm::vec2 screenPos);
 
@@ -36,10 +32,6 @@ protected:
 	aie::Renderer2D*	m_2dRenderer;
 	aie::Font*			m_font;
 
-	//aie Textures
-	aie::Texture* m_backgroundTexture;
-	aie::Texture* m_tableTexture;
-	
 	//physics
 	PhysicsScene* m_physicsScene;
 	std::vector<PhysicsObject*> m_objects;

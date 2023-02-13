@@ -1,5 +1,4 @@
 #include "PhysicsApp.h"
-#include "PhysicsApp.h"
 
 #include <iostream>
 #include <glm/ext.hpp>
@@ -87,7 +86,7 @@ void PhysicsApp::draw()
 
 	
 	// 2d tiled array background
-	for (int y = 0; y < getWindowHeight() / m_backgroundTexture->getHeight() + 2; y++)
+	/*for (int y = 0; y < getWindowHeight() / m_backgroundTexture->getHeight() + 2; y++)
 	{
 		for (int x = 0; x < getWindowWidth() / m_backgroundTexture->getWidth(); x++)
 		{
@@ -98,85 +97,19 @@ void PhysicsApp::draw()
 				m_backgroundTexture->getHeight(),
 				0, 0);
 		}
-	}
+	}*/
 
-	m_2dRenderer->drawSprite(m_tableTexture,20, -6,
-		getWindowWidth()-25, getWindowHeight() - 90, 0, 0, 00, 0);
+	/*m_2dRenderer->drawSprite(m_tableTexture,20, -6,
+		getWindowWidth()-25, getWindowHeight() - 90, 0, 0, 00, 0);*/
 	
     // output some text, uses the last used colour
-    m_2dRenderer->drawText(m_font, "Press ESC to quit", 0, 0);
+    //m_2dRenderer->drawText(m_font, "Press ESC to quit", 0, 0);
 	
     // done drawing sprites
     m_2dRenderer->end();
 }
 
-void PhysicsApp::PoolSetup()
-{
-	m_backgroundTexture = new aie::Texture("../bin/textures/Pool/Floor.png");
-	m_tableTexture = new aie::Texture("../bin/textures/Pool/TransparentTable.png");
-	
-    m_physicsScene->SetGravity(glm::vec2(0));
 
-    //Circle* ball1 = new Circle(glm::vec2(20, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
-    /*Circle* ball2 = new Circle(glm::vec2(0, -20), glm::vec2(0), 4.0f, 4, glm::vec4(0, 1, 0, 1));
-    ball2->SetKinematic(true);
-    ball2->SetTrigger(true);*/
-
-    //m_physicsScene->AddActor(ball1);
-    //m_physicsScene->AddActor(ball2);
-    /*m_physicsScene->AddActor(new Plane(glm::vec2(0, 1), -30));
-    m_physicsScene->AddActor(new Plane(glm::vec2(1, 0), -50));
-    m_physicsScene->AddActor(new Plane(glm::vec2(-1, 0), -50));*/
-
-	SetupPockets();
-
-	Circle* whiteBall = new Circle(glm::vec2(75, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 1, 1, 1), false, false);
-	m_physicsScene->AddActor(whiteBall);
-
-	
-    ///Binding the trigger function to the ball2 using Lambda expressions.
-    /*ball2->TriggerEnterCallback = [=](PhysicsObject* _other)
-    {
-        std::cout << "Enter: " << _other << " ";
-        if(_other == dynamic_cast<Box*>(_other))
-        {
-            std::cout << "Box" << std::endl;
-        }
-        if(_other == dynamic_cast<Circle*>(_other))
-        {
-            std::cout << "Circle" << std::endl;
-        }
-    };
-    ball2->TriggerExitCallback = [=](PhysicsObject* _other)
-    {
-        std::cout << "Exit:" << _other << " ";
-        if(_other == dynamic_cast<Box*>(_other))
-        {
-            std::cout << "Box" << std::endl;
-            m_physicsScene->RemoveActor(_other);
-        }
-        else if(_other == dynamic_cast<Circle*>(_other))
-        {
-            std::cout << "Circle" << std::endl;
-        }
-    };*/
-}
-
-glm::vec2 PhysicsApp::ScreenToWorld(glm::vec2 screenPos)
-{
-    glm::vec2 worldPos = screenPos;
-
-    // move the centre of the screen to (0,0)
-    worldPos.x -= getWindowWidth() / 2;
-    worldPos.y -= getWindowHeight() / 2;
-
-    // scale according to our extents
-    worldPos.x *= 2.0f * m_extents / getWindowWidth();
-    worldPos.y *= 2.0f * m_extents / (m_aspectRatio * getWindowHeight());
-
-
-    return worldPos;
-}
 
 void PhysicsApp::DemoStartUp(int _num)
 {
@@ -454,7 +387,7 @@ void PhysicsApp::DemoStartUp(int _num)
 	m_physicsScene->AddActor(box);
 #endif
 	
-	PoolSetup();
+	//PoolSetup();
 }
 
 void PhysicsApp::DemoUpdates(aie::Input* _input, float _dt)
@@ -493,14 +426,14 @@ void PhysicsApp::DemoUpdates(aie::Input* _input, float _dt)
 #endif
 
 
-	if (_input->isMouseButtonDown(0))
+	/*if (_input->isMouseButtonDown(0))
     {
         int xScreen, yScreen;
         _input->getMouseXY(&xScreen, &yScreen);
         glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
 
         aie::Gizmos::add2DCircle(worldPos, .5f, 24, glm::vec4(0, 0, 1, 1));
-    }
+    }*/
 
 	// Moves the camera in Arrows
 	/*float camPosX;
@@ -528,86 +461,19 @@ float PhysicsApp::DegreeToRadian(float _degree)
     return _degree * (PI / 180.f);
 }
 
-void PhysicsApp::SetupPockets()
+
+glm::vec2 PhysicsApp::ScreenToWorld(glm::vec2 screenPos)
 {
-	// Ends of the table
-	m_physicsScene->AddActor(new Box(glm::vec2(224, -20), glm::vec2(0), 0,
-		4, glm::vec2(8, 80), glm::vec4(0, .4f, .1f, 1), true));
-	m_physicsScene->AddActor(new Box(glm::vec2(-218, -20), glm::vec2(0), 0,
-		4, glm::vec2(8, 80), glm::vec4(0, .4f, .1f, 1), true));
+	glm::vec2 worldPos = screenPos;
 
-	// Sides of the table
-	m_physicsScene->AddActor(new Box(glm::vec2(108, 83), glm::vec2(0), 0,
-		4, glm::vec2(92, 8), glm::vec4(0, .4f, .1f, 1), true));
-	m_physicsScene->AddActor(new Box(glm::vec2(-108, 83), glm::vec2(0), 0,
-		4, glm::vec2(91, 8), glm::vec4(0, .4f, .1f, 1), true));
-	m_physicsScene->AddActor(new Box(glm::vec2(108, -123), glm::vec2(0), 0,
-		4, glm::vec2(92, 8), glm::vec4(0, .4f, .1f, 1), true));
-	m_physicsScene->AddActor(new Box(glm::vec2(-108, -123), glm::vec2(0), 0,
-		4, glm::vec2(91, 8), glm::vec4(0, .4f, .1f, 1), true));
+	// move the centre of the screen to (0,0)
+	worldPos.x -= getWindowWidth() / 2;
+	worldPos.y -= getWindowHeight() / 2;
 
-	// Angled Side of the table
-	// Top Left
-	m_physicsScene->AddActor(new Box(glm::vec2(-216, 64), glm::vec2(0), DegreeToRadian(50),
-		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
-	m_physicsScene->AddActor(new Box(glm::vec2(-201, 79), glm::vec2(0), DegreeToRadian(50),
-		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
-	// Top Right
-	m_physicsScene->AddActor(new Box(glm::vec2(221, 64), glm::vec2(0), DegreeToRadian(-50),
-		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
-	m_physicsScene->AddActor(new Box(glm::vec2(204, 79), glm::vec2(0), DegreeToRadian(-50),
-		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
-	// Bottom Left
-	m_physicsScene->AddActor(new Box(glm::vec2(-216, -104), glm::vec2(0), DegreeToRadian(-50),
-		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
-	m_physicsScene->AddActor(new Box(glm::vec2(-201, -119), glm::vec2(0), DegreeToRadian(-50),
-		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
-	// Bottom Right
-	m_physicsScene->AddActor(new Box(glm::vec2(221, -104), glm::vec2(0), DegreeToRadian(50),
-		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
-	m_physicsScene->AddActor(new Box(glm::vec2(204, -119), glm::vec2(0), DegreeToRadian(50),
-		4, glm::vec2(.25f, 6), glm::vec4(0, .4f, .1f, 1), true));
+	// scale according to our extents
+	worldPos.x *= 2.0f * m_extents / getWindowWidth();
+	worldPos.y *= 2.0f * m_extents / (m_aspectRatio * getWindowHeight());
 
 
-	// Top Centre
-	m_physicsScene->AddActor(new Box(glm::vec2(-14, 79), glm::vec2(0), DegreeToRadian(-30),
-		4, glm::vec2(.25f, 4), glm::vec4(0, .4f, .1f, 1), true));
-	m_physicsScene->AddActor(new Box(glm::vec2(14, 79), glm::vec2(0), DegreeToRadian(30),
-		4, glm::vec2(.25f, 4), glm::vec4(0, .4f, .1f, 1), true));
-	// Bottom Centre
-	m_physicsScene->AddActor(new Box(glm::vec2(-14, -119), glm::vec2(0), DegreeToRadian(30),
-		4, glm::vec2(.25f, 4), glm::vec4(0, .4f, .1f, 1), true));
-	m_physicsScene->AddActor(new Box(glm::vec2(14, -119), glm::vec2(0), DegreeToRadian(-30),
-		4, glm::vec2(.25f, 4), glm::vec4(0, .4f, .1f, 1), true));
-
-
-	
-	// Pockets
-	Circle* topRight = new Circle(glm::vec2(220, 79), glm::vec2(0), 0, 10,
-		glm::vec4(0, .1f, 0, 1), true, true);
-	Circle* topLeft = new Circle(glm::vec2(-217, 79), glm::vec2(0), 0, 10,
-		glm::vec4(0, .1f, 0, 1), true, true);
-	Circle* bottomRight = new Circle(glm::vec2(220, -120), glm::vec2(0), 0, 10,
-		glm::vec4(0, .1f, 0, 1), true, true);
-	Circle* bottomLeft = new Circle(glm::vec2(-217, -120), glm::vec2(0), 0, 10,
-		glm::vec4(0, .1f, 0, 1), true, true);
-	Circle* topCentre = new Circle(glm::vec2(0, 85), glm::vec2(0), 0, 10,
-		glm::vec4(0, .1f, 0, 1), true, true);
-	Circle* bottomCentre = new Circle(glm::vec2(0, -125), glm::vec2(0), 0, 10,
-		glm::vec4(0, .1f, 0, 1), true, true);
-	
-	m_physicsScene->AddActor(topLeft);
-	m_physicsScene->AddActor(topCentre);
-	m_physicsScene->AddActor(topRight);
-	m_physicsScene->AddActor(bottomRight);
-	m_physicsScene->AddActor(bottomCentre);
-	m_physicsScene->AddActor(bottomLeft);
-	
-}
-
-void PhysicsApp::OnBall2Check(PhysicsObject* _other)
-{
-	Plane* plane = dynamic_cast<Plane*>(_other);
-	if (plane != nullptr)
-		std::cout << "Pong!" << std::endl;
+	return worldPos;
 }

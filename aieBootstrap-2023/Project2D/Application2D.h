@@ -13,7 +13,7 @@ public:
 	virtual void Shutdown();
 
 	virtual void Update(float deltaTime);
-	virtual void EndDraw();
+	virtual void draw();
 
 protected:
 

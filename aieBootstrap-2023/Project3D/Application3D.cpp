@@ -88,7 +88,7 @@ void Application3D::Update(float deltaTime) {
 		quit();
 }
 
-void Application3D::EndDraw() {
+void Application3D::draw() {
 
 	// wipe the screen to the background colour
 	clearScreen();
