@@ -4,7 +4,7 @@
 #include <Circle.h>
 #include <Demos.h>
 #include <iostream>
-#include <Plane.h>
+//#include <Plane.h>
 
 #include "Font.h"
 #include "Input.h"
@@ -160,21 +160,13 @@ void Application2D::draw() {
 		0, 0,
 		0.5f, 0.5f);
 
+	m_2dRenderer->drawSprite(m_ball1->GetBallTexture(), m_ball1->GetPosition().x, m_ball1->GetPosition().y,
+		m_ball1->GetBallTexture()->getWidth(), m_ball1->GetBallTexture()->getHeight(),
+		m_ball1->GetOrientation(), 0, 0.5f, 0.5f);
 
 	// done drawing sprites
 	m_2dRenderer->end();
 }
-
-
-
-
-
-////////////////////////
-///
-///
-///
-///
-///
 
 void Application2D::PoolSetup()
 {
@@ -191,6 +183,15 @@ void Application2D::PoolSetup()
     m_physicsScene->AddActor(new Plane(glm::vec2(1, 0), -50));
     m_physicsScene->AddActor(new Plane(glm::vec2(-1, 0), -50));*/
 
+	aie::Texture* _ballTexture = new aie::Texture("../bin/textures/Pool/TransparentTable.png");
+	m_ball1 = new PoolBall(
+		_ballTexture, // Texture
+		glm::vec2(0, 0), // position
+		glm::vec2(0), // velocity
+		4.0f, // mass
+		4, // radius
+		glm::vec4(1, 1, 1, 1), // color
+		false, false); // kinematic, trigger
 
 	Circle* whiteBall = new Circle(glm::vec2(75, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 1, 1, 1), false, false);
 	m_physicsScene->AddActor(whiteBall);
@@ -358,35 +359,35 @@ void Application2D::SetupBalls()
 }
 
 
-
-void Application2D::OnBall2Check(PhysicsObject* _other)
+// Trigger function
+/*void Application2D::OnBall2Check(PhysicsObject* _other)
 {
 	Plane* plane = dynamic_cast<Plane*>(_other);
 	if (plane != nullptr)
 		std::cout << "Pong!" << std::endl;
-}
+}*/
 
+/*
 glm::vec2 Application2D::ScreenToWorld(glm::vec2 _screenPos)
 {
 	return glm::vec2();
 }
+*/
 
+glm::vec2 Application2D::ScreenToWorld(glm::vec2 _screenPos)
+{
+    glm::vec2 worldPos = _screenPos;
 
+    // move the centre of the screen to (0,0)
+    worldPos.x -= getWindowWidth() / 2;
+    worldPos.y -= getWindowHeight() / 2;
 
-//glm::vec2 Application2D::ScreenToWorld(glm::vec2 _screenPos)
-//{
-//    glm::vec2 worldPos = _screenPos;
-//
-//    // move the centre of the screen to (0,0)
-//    worldPos.x -= getWindowWidth() / 2;
-//    worldPos.y -= getWindowHeight() / 2;
-//
-//    // scale according to our extents
-//    worldPos.x *= 2.0f * m_extents / getWindowWidth();
-//    worldPos.y *= 2.0f * m_extents / (m_aspectRatio * getWindowHeight());
-//
-//    return worldPos;
-//}
+    // scale according to our extents
+    worldPos.x *= 2.0f * m_extents / getWindowWidth();
+    worldPos.y *= 2.0f * m_extents / (m_aspectRatio * getWindowHeight());
+
+    return worldPos;
+}
 
 float Application2D::DegreeToRadian(float _degree)
  {

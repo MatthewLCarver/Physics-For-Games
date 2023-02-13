@@ -4,6 +4,8 @@
 #include "Renderer2D.h"
 #include <glm/vec2.hpp>
 
+#include "PoolBall.h"
+
 
 class PhysicsScene;
 class PhysicsObject;
@@ -39,6 +41,8 @@ private:
 	aie::Texture* m_backgroundTexture = nullptr;
 	aie::Texture* m_tableTexture = nullptr;
 
+	PoolBall* m_ball1 = nullptr;
+
 	void PoolSetup();
 	void SetupPockets();
 	void SetupBalls();
@@ -49,4 +53,10 @@ private:
 	
 	const float m_extents = 250;
 	const float m_aspectRatio = 16.0f / 9.0f;
+
+	PoolBall* m_whiteBall = nullptr;
+	PoolBall* m_blackBall = nullptr;
+	std::vector<PoolBall*> m_solidBalls;
+	std::vector<PoolBall*> m_stripedBalls;
+	std::vector<Circle*> m_pockets;
 };
