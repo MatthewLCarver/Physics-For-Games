@@ -46,6 +46,8 @@ private:
 public:
 	void DemoStartUp(int _num);
 	void DemoUpdates(aie::Input* _input, float _dt);
+	float GetAngleBetweenPoints(glm::vec2 _point1, glm::vec2 _point2);
+	float RadianToDegree(float _radian);
 	float DegreeToRadian(float _degree);
 };
 

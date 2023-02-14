@@ -1,18 +1,21 @@
 #include "Application2D.h"
 
-#include <Box.h>
-#include <Circle.h>
 #include <Demos.h>
 #include <iostream>
-//#include <Plane.h>
+#include <string>
+#include "Box.h"
+#include "Circle.h"
+//#include "Plane.h""
 
+#include <Gizmos.h>
 #include "Font.h"
 #include "Input.h"
-#include "Texture.h"
-#include "PhysicsScene.h"
 #include "PhysicsObject.h"
-#include <Gizmos.h>
+#include "PhysicsScene.h"
+#include "Texture.h"
+
 #include <glm/gtc/matrix_transform.hpp>
+#include "PoolBall.h"
 
 Application2D::Application2D()
 {
@@ -71,8 +74,9 @@ void Application2D::Update(float deltaTime) {
 	m_physicsScene->Update(deltaTime);
 	m_physicsScene->Draw();
 
-	std::cout << m_physicsScene->GetActors()[0]->GetShapeID() << std::endl;
-	
+	int xScreen, yScreen;
+	input->getMouseXY(&xScreen, &yScreen);
+	m_mousePos = ScreenToWorld(glm::vec2(xScreen, yScreen));
 	/*// Update the camera position using the arrow keys
 	float camPosX;
 	float camPosY;
@@ -92,6 +96,8 @@ void Application2D::Update(float deltaTime) {
 
 	m_2dRenderer->setCameraPos(camPosX, camPosY);*/
 
+	HandleGameplay(input);
+
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
 		quit();
@@ -110,7 +116,8 @@ void Application2D::draw() {
 		m_extents / m_aspectRatio,
 		-1.0f, 1.0f));
 	
-	
+
+	//m_2dRenderer->setRenderColour(1,1,1,0.5f);
 	/*// demonstrate animation
 	m_2dRenderer->setUVRect(int(m_timer) % 8 / 8.0f, 0, 1.f / 8, 1.f / 8);
 	m_2dRenderer->drawSprite(m_texture, 200, 200, 100, 100);
@@ -140,29 +147,80 @@ void Application2D::draw() {
 	m_2dRenderer->drawText(m_font, fps, 0, 720 - 32);
 	m_2dRenderer->drawText(m_font, "Press ESC to quit!", 0, 720 - 64);*/
 
+	// Draw box Cue stick
+	//m_2dRenderer->drawBox(WorldToScreen(m_mousePos).x, WorldToScreen(m_mousePos).y, 500, 10, GetAngleBetweenPoints(m_whiteBall->GetPosition(), m_mousePos));
+	m_2dRenderer->drawLine(WorldToScreen(m_mousePos).x, WorldToScreen(m_mousePos).y, WorldToScreen(m_whiteBall->GetPosition()).x, WorldToScreen(m_whiteBall->GetPosition()).y, 10, 1);
+	
+	
 	// 2d tiled array background
-	for (int y = 0; y < getWindowHeight() / m_backgroundTexture->getHeight() + 2; y++)
+	for (int y = 0; y < (int)getWindowHeight() / (int)m_backgroundTexture->getHeight() + 2; y++)
 	{
-		for (int x = 0; x < getWindowWidth() / m_backgroundTexture->getWidth() + 1; x++)
+		for (int x = 0; x < (int)getWindowWidth() / (int)m_backgroundTexture->getWidth() + 1; x++)
 		{
 			m_2dRenderer->drawSprite(m_backgroundTexture,
-				x * m_backgroundTexture->getWidth() + m_backgroundTexture->getWidth() / 2,
-				y * m_backgroundTexture->getHeight() - m_backgroundTexture->getHeight() / 2,
-				m_backgroundTexture->getWidth(),
-				m_backgroundTexture->getHeight(),
+				(float)(x * m_backgroundTexture->getWidth()) + (float)m_backgroundTexture->getWidth() / 2,
+				(float)(y * m_backgroundTexture->getHeight()) - (float)m_backgroundTexture->getHeight() / 2,
+				(float)m_backgroundTexture->getWidth(),
+				(float)m_backgroundTexture->getHeight(),
 				0, 0);
 		}
 	}
 
 	m_2dRenderer->drawSprite(m_tableTexture,
-		getWindowWidth() / 2, getWindowHeight() / 2,
-		getWindowWidth() - (getWindowWidth() /4), getWindowHeight() - (getWindowHeight() / 4),
+		(float)getWindowWidth() / 2, (float)getWindowHeight() / 2,
+		(float)(getWindowWidth()) - ((float)getWindowWidth() /4), (float)(getWindowHeight()) - ((float)getWindowHeight() / 4),
 		0, 0,
 		0.5f, 0.5f);
 
-	m_2dRenderer->drawSprite(m_ball1->GetBallTexture(), m_ball1->GetPosition().x, m_ball1->GetPosition().y,
-		m_ball1->GetBallTexture()->getWidth(), m_ball1->GetBallTexture()->getHeight(),
-		m_ball1->GetOrientation(), 0, 0.5f, 0.5f);
+	/*m_2dRenderer->drawSprite(
+		m_ball1->GetBallTexture(), 
+		m_ball1->GetPosition().x, m_ball1->GetPosition().y,
+		m_ball1->GetRadius() * 2, m_ball1->GetRadius() * 2,
+		m_ball1->GetOrientation(), 0, 0.5f, 0.5f*/
+		
+		/*m_2dRenderer->drawSprite(
+		m_blackBall->GetBallTexture(), 
+		m_blackBall->GetPosition().x, m_blackBall->GetPosition().y,
+		m_blackBall->GetRadius() * 2, m_blackBall->GetRadius() * 2,
+		m_blackBall->GetOrientation(), 0, 0.5f, 0.5f
+		);*/
+	for(int i = 0; i < m_solidBalls.size(); i++)
+	{
+		m_2dRenderer->drawSprite(
+			m_solidBalls[i]->GetBallTexture(),
+			WorldToScreen(m_solidBalls[i]->GetPosition()).x,
+			WorldToScreen(m_solidBalls[i]->GetPosition()).y,
+			m_solidBalls[i]->GetRadius() * 8, m_solidBalls[i]->GetRadius() * 8,
+			m_solidBalls[i]->GetOrientation(), 0, 0.5f, 0.5f
+		);
+	}
+	for(int i = 0; i < m_stripedBalls.size(); i++)
+	{
+		m_2dRenderer->drawSprite(
+			m_stripedBalls[i]->GetBallTexture(), 
+			WorldToScreen(m_stripedBalls[i]->GetPosition()).x,
+			WorldToScreen(m_stripedBalls[i]->GetPosition()).y,
+			m_stripedBalls[i]->GetRadius() * 8, m_stripedBalls[i]->GetRadius() * 8,
+			m_stripedBalls[i]->GetOrientation(), 0, 0.5f, 0.5f
+		);
+	}
+		
+	
+	
+	m_2dRenderer->drawSprite(
+		m_whiteBall->GetBallTexture(),
+		WorldToScreen(m_whiteBall->GetPosition()).x,
+		WorldToScreen(m_whiteBall->GetPosition()).y,
+		m_whiteBall->GetRadius() * 8, m_whiteBall->GetRadius() * 8,
+		m_whiteBall->GetOrientation(), 0, 0.5f, 0.5f
+	);
+	m_2dRenderer->drawSprite(
+		m_blackBall->GetBallTexture(),
+		WorldToScreen(m_blackBall->GetPosition()).x,
+		WorldToScreen(m_blackBall->GetPosition()).y,
+		m_blackBall->GetRadius() * 8, m_blackBall->GetRadius() * 8,
+		m_blackBall->GetOrientation(), 0, 0.5f, 0.5f
+	);
 
 	// done drawing sprites
 	m_2dRenderer->end();
@@ -183,25 +241,9 @@ void Application2D::PoolSetup()
     m_physicsScene->AddActor(new Plane(glm::vec2(1, 0), -50));
     m_physicsScene->AddActor(new Plane(glm::vec2(-1, 0), -50));*/
 
-	aie::Texture* _ballTexture = new aie::Texture("../bin/textures/Pool/TransparentTable.png");
-	m_ball1 = new PoolBall(
-		_ballTexture, // Texture
-		glm::vec2(0, 0), // position
-		glm::vec2(0), // velocity
-		4.0f, // mass
-		4, // radius
-		glm::vec4(1, 1, 1, 1), // color
-		false, false); // kinematic, trigger
-
-	Circle* whiteBall = new Circle(glm::vec2(75, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 1, 1, 1), false, false);
-	m_physicsScene->AddActor(whiteBall);
 	
-	SetupPockets();
+	SetupTableAndPockets();
 	SetupBalls();
-
-	
-	
-
 
 
 	
@@ -233,18 +275,9 @@ void Application2D::PoolSetup()
     };*/
 }
 
-// INPUT
-/*if (_input->isMouseButtonDown(0))
-    {
-        int xScreen, yScreen;
-        _input->getMouseXY(&xScreen, &yScreen);
-        glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
-
-        aie::Gizmos::add2DCircle(worldPos, .5f, 24, glm::vec4(0, 0, 1, 1));
-    }*/
 
 
-void Application2D::SetupPockets()
+void Application2D::SetupTableAndPockets()
 {
 	//Ends of the table
 	m_physicsScene->AddActor(new Box(glm::vec2(171.5f, 0), glm::vec2(0), 0,
@@ -297,90 +330,247 @@ void Application2D::SetupPockets()
 		4, glm::vec2(.25f, 4), glm::vec4(0, .4f, .1f, 1), true));
 
 
-	//
-	//// Pockets
-	//Circle* topRight = new Circle(glm::vec2(220, 79), glm::vec2(0), 0, 10,
-	//	glm::vec4(0, .1f, 0, 1), true, true);
-	//Circle* topLeft = new Circle(glm::vec2(-217, 79), glm::vec2(0), 0, 10,
-	//	glm::vec4(0, .1f, 0, 1), true, true);
-	//Circle* bottomRight = new Circle(glm::vec2(220, -120), glm::vec2(0), 0, 10,
-	//	glm::vec4(0, .1f, 0, 1), true, true);
-	//Circle* bottomLeft = new Circle(glm::vec2(-217, -120), glm::vec2(0), 0, 10,
-	//	glm::vec4(0, .1f, 0, 1), true, true);
-	//Circle* topCentre = new Circle(glm::vec2(0, 85), glm::vec2(0), 0, 10,
-	//	glm::vec4(0, .1f, 0, 1), true, true);
-	//Circle* bottomCentre = new Circle(glm::vec2(0, -125), glm::vec2(0), 0, 10,
-	//	glm::vec4(0, .1f, 0, 1), true, true);
 	
-	/*m_physicsScene->AddActor(topLeft);
+	// Pockets
+	Circle* topRight = new Circle(glm::vec2(170, 88), glm::vec2(0), 0, 6,
+		glm::vec4(0, .1f, 0, 1), true, true);
+	Circle* topLeft = new Circle(glm::vec2(-172, 88), glm::vec2(0), 0, 6,
+		glm::vec4(0, .1f, 0, 1), true, true);
+	Circle* bottomRight = new Circle(glm::vec2(170, -88), glm::vec2(0), 0, 6,
+		glm::vec4(0, .1f, 0, 1), true, true);
+	Circle* bottomLeft = new Circle(glm::vec2(-172, -88), glm::vec2(0), 0, 6,
+		glm::vec4(0, .1f, 0, 1), true, true);
+	Circle* topCentre = new Circle(glm::vec2(-2, 92.5f), glm::vec2(0), 0, 6,
+		glm::vec4(0, .1f, 0, 1), true, true);
+	Circle* bottomCentre = new Circle(glm::vec2(-2, -92.5f), glm::vec2(0), 0, 6,
+		glm::vec4(0, .1f, 0, 1), true, true);
+	
+	m_physicsScene->AddActor(topLeft);
 	m_physicsScene->AddActor(topCentre);
 	m_physicsScene->AddActor(topRight);
 	m_physicsScene->AddActor(bottomRight);
 	m_physicsScene->AddActor(bottomCentre);
-	m_physicsScene->AddActor(bottomLeft);*/
-	
+	m_physicsScene->AddActor(bottomLeft);
+
+	m_pockets.push_back(topLeft);
+	m_pockets.push_back(topCentre);
+	m_pockets.push_back(topRight);
+	m_pockets.push_back(bottomRight);
+	m_pockets.push_back(bottomCentre);
+	m_pockets.push_back(bottomLeft);
+
+	for( int i = 0; i < m_pockets.size(); i++)
+	{
+		m_pockets[i]->TriggerEnterCallback = [=] (PhysicsObject* _other)
+		{
+			PoolBall* ball = dynamic_cast<PoolBall*>(_other);
+			OnPoolBallSunkTrigger(ball);
+		};
+	}
+}
+
+void Application2D::AddToBallList()
+{
+	// Loops through all the balls in play and add them to a single list for velocity checking
+	m_allBalls.push_back(m_whiteBall);
+	m_allBalls.push_back(m_blackBall);
+	for (int i = 0; i < 7; i++)
+	{
+		m_allBalls.push_back(m_solidBalls[i]);
+		m_allBalls.push_back(m_stripedBalls[i]);
+	}
 }
 
 void Application2D::SetupBalls()
 {
-	/*Plane* plane = new Plane(glm::vec2(0, 1), -50);
-	m_physicsScene->AddActor(plane);
-
-	Plane* planeD = new Plane(glm::vec2(.707f, .707f), -50);
-	m_physicsScene->AddActor(planeD);#1#
-
-	std::vector<std::string> ballLayout;
-	ballLayout.push_back("0----");
-	ballLayout.push_back("-0---");
-	ballLayout.push_back("0-0--");
-	ballLayout.push_back("-0-0-");
-	ballLayout.push_back("0-0-0");
-	ballLayout.push_back("-0-0-");
-	ballLayout.push_back("0-0--");
-	ballLayout.push_back("-0---");
-	ballLayout.push_back("0----");
-
-	SoftBody::BuildCirclesWithoutSprings(m_physicsScene, glm::vec2(-50, -49), -10.0f, 5000.0f, 5.1f, ballLayout);*/
-
-	
-
-	// Loop through the balls and add them to the scene in a billiards layout
-	// TODO create a poolball class so we can assign properties to the balls
-	
-	/*for (int i = 0; i < m_balls.size(); i++)
+	// Setup the ball textures
+	std::vector<aie::Texture*> m_ballTex = std::vector<aie::Texture*>(16); 
+	for( int i = 1; i < 17; i++)
 	{
-		// Set the ball's position
-		m_balls[i]->SetPosition(glm::vec2(-50 + (i * 10), -49));
+		m_ballTex[i-1] = new aie::Texture(("../bin/textures/Pool/ball_" + std::to_string(i) + ".png").c_str());
+	}
 
-		// Add the ball to the scene
-		m_physicsScene->AddActor(m_balls[i]);
-	}*/
+	m_whiteBall = new PoolBall(
+		m_ballTex[15], // Texture
+		WHITE, // Ball Type
+		glm::vec2(100, 0), // position
+		glm::vec2(0), // velocity
+		m_poolBallMass, // mass
+		m_poolBallRadius, // radius
+		glm::vec4(1, 1, 1, 1), // color
+		false, false); // kinematic, trigger
+	m_physicsScene->AddActor(m_whiteBall);
+
+	// Place the balls into a triangle on the table
+	int ballsPlaced = 0;
+	float heightAdjuster = 0;
+	float poolDiameter = m_poolBallRadius * 2;
+	for (int i = 0; i < 5; i++)
+	{
+		for (int j = 0; j < 1 + i; j++)
+		{
+			int mid = (1 + i) / 2;
+			if(mid == j)
+			{
+				heightAdjuster = 0;
+			}
+			else if(mid > j)
+			{
+				heightAdjuster = m_poolBallRadius + (mid - j) * m_poolBallRadius;
+			}
+			else
+			{
+				heightAdjuster = -m_poolBallRadius - (j - mid) * m_poolBallRadius;
+			}
+			
+			if(ballsPlaced == 4)
+			{
+				// push back the 8 ball in next position
+				m_blackBall = new PoolBall(
+					m_ballTex[7], // Texture
+					BLACK, // Ball Type
+						glm::vec2( // position
+						-100 - (i * poolDiameter),
+						0 + heightAdjuster),
+					glm::vec2(0), // velocity
+					m_poolBallMass, // mass
+					m_poolBallRadius, // radius
+					glm::vec4(1, 1, 1, 1), // color
+					false, false); // kinematic, trigger
+				m_physicsScene->AddActor(m_blackBall);
+				ballsPlaced++;
+				continue;
+			}
+			if(i % 2 != 0)
+			{
+				heightAdjuster -= m_poolBallRadius;
+			}
+			if (ballsPlaced % 2 != 1)
+			{
+				m_solidBalls.push_back(new PoolBall(
+					m_ballTex[m_solidBalls.size()], // Texture
+					SOLID, // Ball Type
+						glm::vec2( // position
+						-100 - (i * poolDiameter),
+						0 + heightAdjuster),
+					glm::vec2(0), // velocity
+					m_poolBallMass, // mass
+					m_poolBallRadius, // radius
+					glm::vec4(1, 1, 1, 1), // color
+					false, false)); // kinematic, trigger
+				m_physicsScene->AddActor(m_solidBalls[m_solidBalls.size()-1]);
+			}
+			else
+			{
+				m_stripedBalls.push_back(new PoolBall(
+					m_ballTex[m_stripedBalls.size() + 8], // Texture
+					STRIPED, // Ball Type
+						glm::vec2( // position
+						-100 - (i * poolDiameter),
+						0 + heightAdjuster),
+					glm::vec2(0), // velocity
+					m_poolBallMass, // mass
+					m_poolBallRadius, // radius
+					glm::vec4(1, 1, 1, 1), // color
+					false, false)); // kinematic, trigger
+				m_physicsScene->AddActor(m_stripedBalls[m_stripedBalls.size()-1]);
+			}
+			
+			//m_physicsScene->AddActor(m_solidBalls[i]);
+			ballsPlaced++;
+		}
+	}
+
+	// Add all the balls to a single list
+	AddToBallList();
+}
+
+//Trigger function
+void Application2D::OnPoolBallSunkTrigger(PoolBall* _ball)
+{
+	switch((int)_ball->GetBallType())
+	{
+	case (int)WHITE:
+		std::cout << "WHITE BALL SUNK" << std::endl;
+		break;
+		
+	case (int)BLACK:
+		std::cout << "BLACK BALL SUNK" << std::endl;
+		break;
+		
+	case (int)SOLID:
+		std::cout << "SOLID BALL SUNK" << std::endl;
+		break;
+		
+	case (int)STRIPED:
+		std::cout << "STRIPED BALL SUNK" << std::endl;
+		break;
+
+	default:
+		std::cout << "BROKEN BALL SUNK" << std::endl;
+		break;
+	}
+}
+
+bool Application2D::CheckVelocities()
+{
+	for(int i = 0; i < m_allBalls.size(); i++)
+	{
+		if (m_allBalls[i]->GetVelocity().x > 0.1f || m_allBalls[i]->GetVelocity().y > 0.1f)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void Application2D::CheckPocketTriggers()
+{
+	// loop through all the pockets in the m_pockets vector
+	for(int i = 0; i < m_pockets.size(); i++)
+	{
+		// loop through all the balls in the m_allBalls vector
+		for(int j = 0; j < m_allBalls.size(); j++)
+		{
+			// if the ball is in the pocket
+			if(m_pockets[i]->IsInside(m_allBalls[j]->GetPosition()))
+			{
+				
+			}
+		}
+	}
+}
+
+void Application2D::HandleGameplay(aie::Input* _input)
+{
+	if(CheckVelocities())
+	{
+		m_isShooting = false;
+		return;
+	}
+
+	CheckPocketTriggers();
 	
+	// INPUT
+	if (_input->isMouseButtonDown(0))
+	{
+		m_isShooting = true;
+		//glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
+
+		aie::Gizmos::add2DCircle(m_mousePos, .5f, 24, glm::vec4(0, 0, 1, 1));
+
+		//m_whiteBall->ApplyForce(glm::vec2(-100, 0), glm::vec2(0));
+		
+	}
 }
-
-
-// Trigger function
-/*void Application2D::OnBall2Check(PhysicsObject* _other)
-{
-	Plane* plane = dynamic_cast<Plane*>(_other);
-	if (plane != nullptr)
-		std::cout << "Pong!" << std::endl;
-}*/
-
-/*
-glm::vec2 Application2D::ScreenToWorld(glm::vec2 _screenPos)
-{
-	return glm::vec2();
-}
-*/
 
 glm::vec2 Application2D::ScreenToWorld(glm::vec2 _screenPos)
 {
     glm::vec2 worldPos = _screenPos;
 
     // move the centre of the screen to (0,0)
-    worldPos.x -= getWindowWidth() / 2;
-    worldPos.y -= getWindowHeight() / 2;
+    worldPos.x -= (float)getWindowWidth() / 2;
+    worldPos.y -= (float)getWindowHeight() / 2;
 
     // scale according to our extents
     worldPos.x *= 2.0f * m_extents / getWindowWidth();
@@ -389,7 +579,29 @@ glm::vec2 Application2D::ScreenToWorld(glm::vec2 _screenPos)
     return worldPos;
 }
 
+glm::vec2 Application2D::WorldToScreen(glm::vec2 _worldPos)
+{
+	glm::vec2 screenPos = _worldPos;
+	screenPos.x *= getWindowWidth() / (2.0f * m_extents);
+	screenPos.y *= (m_aspectRatio * getWindowHeight()) / (2.0f * m_extents);
+	
+	screenPos.x += (float)getWindowWidth() / 2;
+	screenPos.y += (float)getWindowHeight() / 2;
+
+	return screenPos;
+}
+
 float Application2D::DegreeToRadian(float _degree)
  {
-	return _degree * (PI / 180.f);
+	return _degree * (float)(PI / (double)180.f);
  }
+
+float Application2D::RadianToDegree(float _radian)
+{
+	return _radian * (float)(180.f / (double)PI);
+}
+
+float Application2D::GetAngleBetweenPoints(glm::vec2 _point1, glm::vec2 _point2)
+{
+	return atan2(_point2.y - _point1.y, _point2.x - _point1.x);
+}

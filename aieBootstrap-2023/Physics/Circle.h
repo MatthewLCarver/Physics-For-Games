@@ -6,7 +6,7 @@ class Circle : public Rigidbody
 public:
     Circle(glm::vec2 _position, glm::vec2 _velocity, float _mass,
         float _radius, glm::vec4 _color, bool _isKinematic, bool _isTrigger);
-    ~Circle();
+    ~Circle() {};
 
     virtual void Draw(float alpha);
 

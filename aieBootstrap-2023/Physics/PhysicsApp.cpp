@@ -456,6 +456,17 @@ void PhysicsApp::DemoUpdates(aie::Input* _input, float _dt)
 	
 }
 
+float PhysicsApp::GetAngleBetweenPoints(glm::vec2 _point1, glm::vec2 _point2)
+{
+	float angle = atan2(_point2.y - _point1.y, _point2.x - _point1.x);
+	return angle;
+}
+
+float PhysicsApp::RadianToDegree(float _radian)
+{
+	return _radian * (180.f / PI);
+}
+
 float PhysicsApp::DegreeToRadian(float _degree)
 {
     return _degree * (PI / 180.f);
@@ -467,13 +478,12 @@ glm::vec2 PhysicsApp::ScreenToWorld(glm::vec2 screenPos)
 	glm::vec2 worldPos = screenPos;
 
 	// move the centre of the screen to (0,0)
-	worldPos.x -= getWindowWidth() / 2;
-	worldPos.y -= getWindowHeight() / 2;
+	worldPos.x -= (float)getWindowWidth() / 2;
+	worldPos.y -= (float)getWindowHeight() / 2;
 
 	// scale according to our extents
 	worldPos.x *= 2.0f * m_extents / getWindowWidth();
 	worldPos.y *= 2.0f * m_extents / (m_aspectRatio * getWindowHeight());
-
-
+	
 	return worldPos;
 }

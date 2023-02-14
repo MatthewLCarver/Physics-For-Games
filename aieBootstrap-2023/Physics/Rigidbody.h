@@ -11,7 +11,7 @@ class Rigidbody : public PhysicsObject
 public:
     Rigidbody(ShapeType _shapeID, glm::vec2 _position,
               glm::vec2 _velocity, float _orientation, float _mass, bool _isKinematic = false, bool _isTrigger = false);
-    ~Rigidbody();
+    ~Rigidbody() {};
 
     std::function<void(PhysicsObject*)> CollisionCallback;
     std::function<void(PhysicsObject*)> TriggerEnterCallback;
