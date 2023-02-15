@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "Demos.h"
+#include "PhysicsApp.h"
 #include "PhysicsObject.h"
 
 Rigidbody::Rigidbody(ShapeType _shapeID, glm::vec2 _position, glm::vec2 _velocity, float _orientation, float _mass,
@@ -70,7 +71,7 @@ void Rigidbody::FixedUpdate(glm::vec2 _gravity, float _timeStep)
     //Apply Forces
     ApplyForce(_gravity * m_mass * _timeStep, glm::vec2(0));
     //Apply angular velocity to orientation
-    m_orientation += m_angularVelocity * _timeStep;
+    m_orientation += DegreeToRadian(m_angularVelocity * _timeStep);
 
     m_velocity -= m_velocity * m_linearDrag * _timeStep;
     m_angularVelocity -= m_angularVelocity * m_angularDrag * _timeStep;
@@ -87,8 +88,8 @@ void Rigidbody::FixedUpdate(glm::vec2 _gravity, float _timeStep)
 
 void Rigidbody::ApplyForce(glm::vec2 _force, glm::vec2 _pos)
 {
-    m_velocity += _force / GetMass();
     m_angularVelocity += (_force.y * _pos.x - _force.x * _pos.y) / GetMoment();
+    m_velocity += _force / GetMass();
 }
 
 void Rigidbody::ApplyForceToActor(Rigidbody* _actor2, glm::vec2 _force, glm::vec2 _contact)
@@ -97,13 +98,13 @@ void Rigidbody::ApplyForceToActor(Rigidbody* _actor2, glm::vec2 _force, glm::vec
     ApplyForce(-_force, _contact);
 }
 
-void Rigidbody::ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact, glm::vec2* collisionNormal, float pen)
+void Rigidbody::ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact, glm::vec2* _collisionNormal, float pen)
 {
     //register that these two objects have overlapped this frame
     m_objectsInsideThisFrame.push_back(_actor2);
     _actor2->m_objectsInsideThisFrame.push_back(this);
 
-    glm::vec2 normal = glm::normalize(collisionNormal ? *collisionNormal : _actor2->m_position - m_position);
+    glm::vec2 normal = glm::normalize(_collisionNormal ? *_collisionNormal : _actor2->m_position - m_position);
     glm::vec2 perp(normal.y, -normal.x);
     glm::vec2 relativeVelocity = _actor2->GetVelocity() - m_velocity;
 

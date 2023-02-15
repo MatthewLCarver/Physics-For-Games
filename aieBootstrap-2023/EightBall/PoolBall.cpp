@@ -21,14 +21,14 @@ PoolBall::~PoolBall()
 
 void PoolBall::Draw(float alpha)
 {
-    CalculateSmoothedPosition(alpha);
+    /*CalculateSmoothedPosition(alpha);
     
     aie::Gizmos::add2DCircle(m_smoothedPosition, m_radius + 0.5f , 12, glm::vec4(1.f,1.f, 1.f, .5f));
     aie::Gizmos::add2DCircle(m_smoothedPosition, m_radius , 12, m_color);
-    aie::Gizmos::add2DLine(m_smoothedPosition, m_smoothedPosition + m_smoothedLocalX * m_radius, glm::vec4(0.1f, 0.1f, 0.1f, 1));    
+    aie::Gizmos::add2DLine(m_smoothedPosition, m_smoothedPosition + m_smoothedLocalX * m_radius, glm::vec4(0.1f, 0.1f, 0.1f, 1));    */
 }
 
 bool PoolBall::IsInside(glm::vec2 _point)
 {
-    return false;
+    return glm::distance(_point, m_position) <= m_radius;
 }

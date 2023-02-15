@@ -21,10 +21,15 @@ public:
     virtual void Draw(float alpha);
     virtual void Start() {};
 
+    void SinkBall()
+        {m_hasSunk = !m_hasSunk;}
+    
     aie::Texture* GetBallTexture() 
         { return m_ballTexture; }
     BallType GetBallType() 
         { return m_ballType; }
+    bool HasSunk() 
+        { return m_hasSunk; }
 
 protected:
     virtual bool IsInside(glm::vec2 _point);
@@ -32,4 +37,6 @@ protected:
 private:
     aie::Texture* m_ballTexture;
     BallType m_ballType;
+
+    bool m_hasSunk = false;
 };

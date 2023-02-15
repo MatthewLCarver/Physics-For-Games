@@ -6,6 +6,8 @@
 #include <functional>
 #include <list>
 
+#include "Demos.h"
+
 class Rigidbody : public PhysicsObject
 {
 public:
@@ -22,7 +24,7 @@ public:
     void ApplyForce(glm::vec2 _force, glm::vec2 _pos);
     void ApplyForceToActor(Rigidbody* _actor2, glm::vec2 _force, glm::vec2 _contact);
 
-    void ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact, glm::vec2* collisionNormal = nullptr, float pen = 0);
+    void ResolveCollision(Rigidbody* _actor2, glm::vec2 _contact, glm::vec2* _collisionNormal = nullptr, float pen = 0);
 
     void CalculateSmoothedPosition(float _alpha);
 
@@ -34,6 +36,8 @@ public:
     void TriggerEnter(PhysicsObject* _actor2);
     void TriggerExit(PhysicsObject* _actor2);
 
+    float DegreeToRadian(float _degree);
+    
     //Getters
     virtual float GetKineticEnergy()
     {
@@ -114,3 +118,8 @@ protected:
     std::list<PhysicsObject*> m_objectsInside;
     std::list<PhysicsObject*> m_objectsInsideThisFrame;
 };
+
+inline float Rigidbody::DegreeToRadian(float _degree)
+{
+    return _degree * (PI / (double)180.0f);
+}
