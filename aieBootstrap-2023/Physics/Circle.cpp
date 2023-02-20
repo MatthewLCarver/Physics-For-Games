@@ -16,9 +16,9 @@ Circle::Circle(glm::vec2 position, glm::vec2 velocity, float mass, float radius,
     m_angularVelocity = 0;
 }
 
-void Circle::Draw(float alpha)
+void Circle::Draw(float _alpha)
 {   
-    CalculateSmoothedPosition(alpha);
+    CalculateSmoothedPosition(_alpha);
     
     aie::Gizmos::add2DCircle(m_smoothedPosition, m_radius + 0.5f , 12, glm::vec4(1.f,1.f, 1.f, .5f));
     aie::Gizmos::add2DCircle(m_smoothedPosition, m_radius , 12, m_color);

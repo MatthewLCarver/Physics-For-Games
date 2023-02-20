@@ -22,10 +22,10 @@ public:
 	virtual bool Startup();
 	virtual void Shutdown();
 
-	virtual void Update(float deltaTime);
+	virtual void Update(float _deltaTime);
 	virtual void draw();
 	
-	glm::vec2 ScreenToWorld(glm::vec2 screenPos);
+	glm::vec2 ScreenToWorld(glm::vec2 _screenPos);
 
 protected:
 	//aie
@@ -35,8 +35,6 @@ protected:
 	//physics
 	PhysicsScene* m_physicsScene;
 	std::vector<PhysicsObject*> m_objects;
-	
-	
 
 private:
 	const float m_extents = 250;

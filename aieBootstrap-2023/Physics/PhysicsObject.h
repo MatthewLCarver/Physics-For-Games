@@ -20,22 +20,25 @@ protected:
     }
 
 public:
+    
     virtual ~PhysicsObject() = default;
-    //Virtuals
     virtual void FixedUpdate(glm::vec2 _gravity, float _timeStep) = 0;
     virtual void Draw(float _alpha) = 0;
 
     virtual void ResetPosition(){}
-    virtual bool IsInside(glm::vec2 _point){ return false; }
-
-    virtual float GetKineticEnergy() =0;
-    virtual float GetEnergy() =0;
-    float GetElasticity() { return m_elasticity; }
-
-    void SetElasticity(float _elasticity) { m_elasticity = _elasticity; }
+    virtual bool IsInside(glm::vec2 _point)
+        { return false; }
+    
+    void SetElasticity(float _elasticity)
+        { m_elasticity = _elasticity; }
 
     //Getter
-    ShapeType GetShapeID() { return m_shapeID; }
+    ShapeType GetShapeID()
+        { return m_shapeID; }
+    virtual float GetKineticEnergy() =0;
+    virtual float GetEnergy() =0;
+    float GetElasticity()
+        { return m_elasticity; }
 
 protected:
     ShapeType m_shapeID;

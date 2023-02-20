@@ -1,12 +1,12 @@
-﻿#include <glm/vec2.hpp>
-#include <iostream>
+﻿#include <iostream>
+#include <glm/vec2.hpp>
 
+#include "PhysicsScene.h"
+#include "Box.h"
 #include "Circle.h"
 #include "PhysicsObject.h"
 #include "Plane.h"
-#include "PhysicsScene.h"
 
-#include "Box.h"
 
 glm::vec2 PhysicsScene::m_gravity = glm::vec2(0, 0);
 
@@ -38,16 +38,6 @@ void PhysicsScene::RemoveActor(PhysicsObject* _actor)
     if(_actor != nullptr)
     {
         m_actors.erase(std::find(m_actors.begin(), m_actors.end(), _actor));
-
-        std::cout << "REMOVED: " << _actor << std::endl;
-        //for(auto actor = m_actors.begin(); actor != m_actors.end(); actor++)
-        //{
-        //    if(*actor == _actor)
-        //    {
-        //        m_actors.erase(actor);
-        //        break;
-        //    }
-        //}
     }
 }
 
@@ -114,7 +104,7 @@ void PhysicsScene::CheckForCollision()
     }
 }
 
-void PhysicsScene::ApplyContactForces(Rigidbody* _body1, Rigidbody* _body2, glm::vec2 norm, float pen)
+void PhysicsScene::ApplyContactForces(Rigidbody* _body1, Rigidbody* _body2, glm::vec2 _norm, float _pen)
 {
     if((_body1 && _body1->GetIsTrigger()) || (_body2 && _body2->GetIsTrigger()))
     {
@@ -124,10 +114,10 @@ void PhysicsScene::ApplyContactForces(Rigidbody* _body1, Rigidbody* _body2, glm:
 
     float body1Factor = body2Mass / (_body1->GetMass() + body2Mass);
 
-    _body1->SetPosition(_body1->GetPosition() - body1Factor * norm * pen);
+    _body1->SetPosition(_body1->GetPosition() - body1Factor * _norm * _pen);
     if(_body2)
     {
-        _body2->SetPosition(_body2->GetPosition() + (1 - body1Factor) * norm * pen);
+        _body2->SetPosition(_body2->GetPosition() + (1 - body1Factor) * _norm * _pen);
     }
 }
 
@@ -142,6 +132,10 @@ float PhysicsScene::GetTotalEnergy()
     return total;
 }
 
+
+
+// Plane Collision Functions //
+
 bool PhysicsScene::Plane2Plane(PhysicsObject* _obj1, PhysicsObject* _obj2)
 {
     return false;
@@ -151,6 +145,52 @@ bool PhysicsScene::Plane2Circle(PhysicsObject* _obj1, PhysicsObject* _obj2)
 {
     return Circle2Plane(_obj2, _obj1);
 }
+
+bool PhysicsScene::Plane2Box(PhysicsObject* _obj1, PhysicsObject* _obj2)
+{
+    Plane* plane = dynamic_cast<Plane*>(_obj1);
+    Box* box = dynamic_cast<Box*>(_obj2);
+
+    if(box != nullptr && plane != nullptr)
+    {
+        int numContacts = 0;
+        glm::vec2 contact(0, 0);
+        float contactV = 0;
+
+        glm::vec2 planeOrigin = plane->GetNormal() * plane->GetDistance();
+
+        for(float x = -box->GetExtents().x; x < box->GetWidth(); x += box->GetWidth())
+        {
+            for(float y = -box->GetExtents().y; y < box->GetHeight(); y += box->GetHeight())
+            {
+                glm::vec2 p = box->GetPosition() + x * box->GetLocalX() + y * box->GetLocalY();
+                float distFromPlane = glm::dot(p - planeOrigin, plane->GetNormal());
+
+                glm::vec2 displacement = x * box->GetLocalX() + y * box->GetLocalY();
+                glm::vec2 pointVelocity = box->GetVelocity() + box->GetAngularVelocity() * glm::vec2(-displacement.y, displacement.x);
+
+                float velocityIntoPlane = glm::dot(pointVelocity, plane->GetNormal());
+
+                if(distFromPlane < 0 && velocityIntoPlane < 0)
+                {
+                    contact += p - plane->GetNormal() * distFromPlane;
+                    contactV += velocityIntoPlane;
+                    numContacts++;
+                }
+            }
+        }
+        if(numContacts > 0)
+        {
+            plane->ResolveCollision(box, contact / (float) numContacts);
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
+// Circle Collision Functions //
 
 bool PhysicsScene::Circle2Plane(PhysicsObject* _obj1, PhysicsObject* _obj2)
 {
@@ -203,82 +243,18 @@ bool PhysicsScene::Circle2Circle(PhysicsObject* _obj1, PhysicsObject* _obj2)
     return false;
 }
 
-bool PhysicsScene::Plane2Box(PhysicsObject* _obj1, PhysicsObject* _obj2)
+bool PhysicsScene::Circle2Box(PhysicsObject* _obj1, PhysicsObject* _obj2)
 {
-    Plane* plane = dynamic_cast<Plane*>(_obj1);
-    Box* box = dynamic_cast<Box*>(_obj2);
-
-    if(box != nullptr && plane != nullptr)
-    {
-        int numContacts = 0;
-        glm::vec2 contact(0, 0);
-        float contactV = 0;
-
-        glm::vec2 planeOrigin = plane->GetNormal() * plane->GetDistance();
-
-        for(float x = -box->GetExtents().x; x < box->GetWidth(); x += box->GetWidth())
-        {
-            for(float y = -box->GetExtents().y; y < box->GetHeight(); y += box->GetHeight())
-            {
-                glm::vec2 p = box->GetPosition() + x * box->GetLocalX() + y * box->GetLocalY();
-                float distFromPlane = glm::dot(p - planeOrigin, plane->GetNormal());
-
-                glm::vec2 displacement = x * box->GetLocalX() + y * box->GetLocalY();
-                glm::vec2 pointVelocity = box->GetVelocity() + box->GetAngularVelocity() * glm::vec2(-displacement.y, displacement.x);
-
-                float velocityIntoPlane = glm::dot(pointVelocity, plane->GetNormal());
-
-                if(distFromPlane < 0 && velocityIntoPlane < 0)
-                {
-                    contact += p - plane->GetNormal() * distFromPlane;
-                    contactV += velocityIntoPlane;
-                    numContacts++;
-                }
-            }
-        }
-        if(numContacts > 0)
-        {
-            plane->ResolveCollision(box, contact / (float) numContacts);
-            return true;
-        }
-    }
-    return false;
+    return Box2Circle(_obj2, _obj1);
 }
+
+
+
+// Box Collision Functions //
 
 bool PhysicsScene::Box2Plane(PhysicsObject* _obj1, PhysicsObject* _obj2)
 {
     return Plane2Box(_obj2, _obj1);
-}
-
-bool PhysicsScene::Box2Box(PhysicsObject* _obj1, PhysicsObject* _obj2)
-{
-    Box* box1 = dynamic_cast<Box*>(_obj1);
-    Box* box2 = dynamic_cast<Box*>(_obj2);
-
-    if(box1 != nullptr && box2 != nullptr)
-    {
-        glm::vec2 boxPos = box2->GetPosition() - box1->GetPosition();
-        glm::vec2 norm(0, 0);
-        glm::vec2 contact(0, 0);
-        float pen = 0;
-        int numContacts = 0;
-        box1->CheckBoxCorners(*box2, contact, numContacts, pen, norm);
-        if(box2->CheckBoxCorners(*box1, contact, numContacts, pen, norm))
-        {
-            norm = -norm;
-        }
-        if(pen > 0)
-        {
-            box1->ResolveCollision(box2, contact / float(numContacts), &norm, pen);
-        }
-        return true;
-    }
-    return false;
-}
-
-bool PhysicsScene::Circle2Box(PhysicsObject* _obj1, PhysicsObject* _obj2)
-{
-    return Box2Circle(_obj2, _obj1);
 }
 
 bool PhysicsScene::Box2Circle(PhysicsObject* _obj1, PhysicsObject* _obj2)
@@ -314,3 +290,30 @@ bool PhysicsScene::Box2Circle(PhysicsObject* _obj1, PhysicsObject* _obj2)
 
     return false;
 }
+
+bool PhysicsScene::Box2Box(PhysicsObject* _obj1, PhysicsObject* _obj2)
+{
+    Box* box1 = dynamic_cast<Box*>(_obj1);
+    Box* box2 = dynamic_cast<Box*>(_obj2);
+
+    if(box1 != nullptr && box2 != nullptr)
+    {
+        glm::vec2 boxPos = box2->GetPosition() - box1->GetPosition();
+        glm::vec2 norm(0, 0);
+        glm::vec2 contact(0, 0);
+        float pen = 0;
+        int numContacts = 0;
+        box1->CheckBoxCorners(*box2, contact, numContacts, pen, norm);
+        if(box2->CheckBoxCorners(*box1, contact, numContacts, pen, norm))
+        {
+            norm = -norm;
+        }
+        if(pen > 0)
+        {
+            box1->ResolveCollision(box2, contact / float(numContacts), &norm, pen);
+        }
+        return true;
+    }
+    return false;
+}
+

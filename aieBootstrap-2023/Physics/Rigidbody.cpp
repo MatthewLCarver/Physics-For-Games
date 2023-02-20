@@ -179,9 +179,9 @@ void Rigidbody::CalculateAxes()
     m_localY = glm::vec2(-sn, cs);
 }
 
-glm::vec2 Rigidbody::ToWorld(glm::vec2 _contact)
+glm::vec2 Rigidbody::ToWorld(glm::vec2 _pos)
 {
-    glm::vec2 worldPos = m_position + m_localX * _contact.x + m_localY * _contact.y;
+    glm::vec2 worldPos = m_position + m_localX * _pos.x + m_localY * _pos.y;
     return worldPos;
 }
 

@@ -13,7 +13,7 @@ class Rigidbody : public PhysicsObject
 public:
     Rigidbody(ShapeType _shapeID, glm::vec2 _position,
               glm::vec2 _velocity, float _orientation, float _mass, bool _isKinematic = false, bool _isTrigger = false);
-    ~Rigidbody() {};
+    ~Rigidbody() {}
 
     std::function<void(PhysicsObject*)> CollisionCallback;
     std::function<void(PhysicsObject*)> TriggerEnterCallback;
@@ -21,6 +21,7 @@ public:
 
     void FixedUpdate(glm::vec2 _gravity, float _timeStep) override;
 
+    // Applies forces to current &/or other actor
     void ApplyForce(glm::vec2 _force, glm::vec2 _pos);
     void ApplyForceToActor(Rigidbody* _actor2, glm::vec2 _force, glm::vec2 _contact);
 
@@ -30,7 +31,7 @@ public:
 
     void CalculateAxes();
 
-    glm::vec2 ToWorld(glm::vec2 _contact);
+    glm::vec2 ToWorld(glm::vec2 _pos);
     glm::vec2 ToWorldSmoothed(glm::vec2 _localPos);
 
     void TriggerEnter(PhysicsObject* _actor2);
@@ -42,26 +43,40 @@ public:
     virtual float GetKineticEnergy()
     {
         return 0.5f * m_mass * glm::length(m_velocity) * glm::length(m_velocity);
-
-        /*return 0.5f * (m_mass * glm::dot(m_velocity, m_velocity) +
-            m_moment * m_angularVelocity * m_angularVelocity);*/
     }
 
-    float GetPotentialEnergy() { return -GetMass() * glm::dot(PhysicsScene::GetGravity(), GetPosition()); }
-    virtual float GetEnergy()  { return GetKineticEnergy() + GetPotentialEnergy(); }
-    glm::vec2 GetPosition() { return m_position; }
-    glm::vec2 GetVelocity() { return m_velocity; }
-    float GetMass() { return m_isKinematic ? INT_MAX : m_mass; }
-    float GetOrientation() { return m_orientation; }
-    glm::vec4 GetColor() { return m_color; }
-    float GetMoment() { return m_isKinematic ? INT_MAX : m_moment; }
-    glm::vec2 GetLocalX() { return m_localX; }
-    glm::vec2 GetLocalY() { return m_localY; }
-    float GetAngularVelocity() { return m_angularVelocity; }
-    float GetLinearDrag() { return m_linearDrag; }
-    float GetAngularDrag() { return m_angularDrag; }
-    bool GetIsKinematic() { return m_isKinematic; }
-    bool GetIsTrigger() { return m_isTrigger; }
+    // Getters
+    float GetPotentialEnergy()
+        { return -GetMass() * glm::dot(PhysicsScene::GetGravity(), GetPosition()); }
+    virtual float GetEnergy()
+        { return GetKineticEnergy() + GetPotentialEnergy(); }
+    glm::vec2 GetPosition()
+        { return m_position; }
+    glm::vec2 GetVelocity()
+        { return m_velocity; }
+    float GetMass()
+        { return m_isKinematic ? INT_MAX : m_mass; }
+    float GetOrientation()
+        { return m_orientation; }
+    glm::vec4 GetColor()
+        { return m_color; }
+    float GetMoment()
+        { return m_isKinematic ? INT_MAX : m_moment; }
+    glm::vec2 GetLocalX()
+        { return m_localX; }
+    glm::vec2 GetLocalY()
+        { return m_localY; }
+    float GetAngularVelocity()
+        { return m_angularVelocity; }
+    float GetLinearDrag()
+        { return m_linearDrag; }
+    float GetAngularDrag()
+        { return m_angularDrag; }
+    bool GetIsKinematic()
+        { return m_isKinematic; }
+    bool GetIsTrigger()
+        { return m_isTrigger; }
+
     //Setters
     void SetTrigger(bool _isTrigger)
         { m_isTrigger = _isTrigger; }
@@ -92,17 +107,18 @@ public:
     
 protected:
     glm::vec2 m_position;
-    glm::vec2 m_lastPosition;
     glm::vec2 m_velocity;
     float m_mass;
     float m_orientation;
+
+    glm::vec2 m_lastPosition;
+    float m_lastOrientation;
+
+    glm::vec4 m_color;
+    
     float m_angularVelocity;
     float m_moment;
 
-    float m_linearDrag;
-    float m_angularDrag;
-
-    float m_lastOrientation;
     glm::vec2 m_smoothedPosition;
     glm::vec2 m_smoothedLocalX;
     glm::vec2 m_smoothedLocalY;
@@ -110,8 +126,9 @@ protected:
     glm::vec2 m_localX;
     glm::vec2 m_localY;
 
-
-    glm::vec4 m_color;
+    float m_linearDrag;
+    float m_angularDrag;
+    
     bool m_isKinematic;
 
     bool m_isTrigger;

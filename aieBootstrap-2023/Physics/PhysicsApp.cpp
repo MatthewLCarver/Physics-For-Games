@@ -50,17 +50,17 @@ void PhysicsApp::Shutdown()
     delete m_2dRenderer;
 }
 
-void PhysicsApp::Update(float deltaTime)
+void PhysicsApp::Update(float _deltaTime)
 {
     // input example
     aie::Input* input = aie::Input::getInstance();
 
     aie::Gizmos::clear();
 
-    m_physicsScene->Update(deltaTime);
+    m_physicsScene->Update(_deltaTime);
 	m_physicsScene->Draw();
 
-	DemoUpdates(input, deltaTime);
+	DemoUpdates(input, _deltaTime);
 	
     // exit the application
     if(input->isKeyDown(aie::INPUT_KEY_ESCAPE))
@@ -473,9 +473,9 @@ float PhysicsApp::DegreeToRadian(float _degree)
 }
 
 
-glm::vec2 PhysicsApp::ScreenToWorld(glm::vec2 screenPos)
+glm::vec2 PhysicsApp::ScreenToWorld(glm::vec2 _screenPos)
 {
-	glm::vec2 worldPos = screenPos;
+	glm::vec2 worldPos = _screenPos;
 
 	// move the centre of the screen to (0,0)
 	worldPos.x -= (float)getWindowWidth() / 2;
