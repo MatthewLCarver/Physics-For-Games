@@ -17,11 +17,17 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "PoolBall.h"
 
+/**
+ * \brief Construct a new Application2D
+ */
 Application2D::Application2D()
 {
 	
 }
 
+/**
+ * \brief Destroy the Application2D and associated objects
+ */
 Application2D::~Application2D()
 {
 	delete m_backgroundTexture;
@@ -30,6 +36,10 @@ Application2D::~Application2D()
 	delete m_deploymentZoneTexture;
 }
 
+/**
+ * \brief Startup the application
+ * \return true If the application started successfully
+ */
 bool Application2D::Startup() {
 
 	//Increase the 2D line count to maximise the objects we can draw
@@ -57,6 +67,9 @@ bool Application2D::Startup() {
 	return true;
 }
 
+/**
+ * \brief Shutdown the application
+ */
 void Application2D::Shutdown() {
 	
 	delete m_font;
@@ -65,6 +78,10 @@ void Application2D::Shutdown() {
 	delete m_2dRenderer;
 }
 
+/**
+ * \brief Update the application 
+ * \param deltaTime The time since the last frame
+ */
 void Application2D::Update(float deltaTime) {
 
 	m_timer += deltaTime;
@@ -75,37 +92,16 @@ void Application2D::Update(float deltaTime) {
 	aie::Gizmos::clear();
 
 	m_physicsScene->Update(deltaTime);
+	// Debug the gizmos
 	//m_physicsScene->Draw();
 
 	int xScreen, yScreen;
 	input->getMouseXY(&xScreen, &yScreen);
 	m_mousePos = ScreenToWorld(glm::vec2(xScreen, yScreen));
-	/*// Update the camera position using the arrow keys
-	float camPosX;
-	float camPosY;
-	m_2dRenderer->getCameraPos(camPosX, camPosY);
-
-	if (input->isKeyDown(aie::INPUT_KEY_UP))
-		camPosY += 500.0f * deltaTime;
-
-	if (input->isKeyDown(aie::INPUT_KEY_DOWN))
-		camPosY -= 500.0f * deltaTime;
-
-	if (input->isKeyDown(aie::INPUT_KEY_LEFT))
-		camPosX -= 500.0f * deltaTime;
-
-	if (input->isKeyDown(aie::INPUT_KEY_RIGHT))
-		camPosX += 500.0f * deltaTime;
-
-	m_2dRenderer->setCameraPos(camPosX, camPosY);*/
-
+	
 	if(!m_hasLostGame)
 	{
 		HandleGameplay(input, deltaTime);
-	}
-	else
-	{
-		//DisplayGameOver();
 	}
 
 	// exit the application
@@ -113,6 +109,9 @@ void Application2D::Update(float deltaTime) {
 		quit();
 }
 
+/**
+ * \brief Draw the gizmos, UI, background, balls & cue stick in the application
+ */
 void Application2D::draw() {
 
 	// wipe the screen to the background colour
@@ -163,25 +162,23 @@ void Application2D::draw() {
 	// Balls
 	for(int i = 0; i < m_solidBalls.size(); i++)
 	{
-		//if(!m_solidBalls[i]->HasSunk())
-			m_2dRenderer->drawSprite(
-				m_solidBalls[i]->GetBallTexture(),
-				WorldToScreen(m_solidBalls[i]->GetPosition()).x,
-				WorldToScreen(m_solidBalls[i]->GetPosition()).y,
-				m_solidBalls[i]->GetRadius() * 8, m_solidBalls[i]->GetRadius() * 8,
-				m_solidBalls[i]->GetOrientation(), 0, 0.5f, 0.5f
-			);
+		m_2dRenderer->drawSprite(
+			m_solidBalls[i]->GetBallTexture(),
+			WorldToScreen(m_solidBalls[i]->GetPosition()).x,
+			WorldToScreen(m_solidBalls[i]->GetPosition()).y,
+			m_solidBalls[i]->GetRadius() * 8, m_solidBalls[i]->GetRadius() * 8,
+			m_solidBalls[i]->GetOrientation(), 0, 0.5f, 0.5f
+		);
 	}
 	for(int i = 0; i < m_stripedBalls.size(); i++)
 	{
-		//if(!m_stripedBalls[i]->HasSunk())
-			m_2dRenderer->drawSprite(
-				m_stripedBalls[i]->GetBallTexture(), 
-				WorldToScreen(m_stripedBalls[i]->GetPosition()).x,
-				WorldToScreen(m_stripedBalls[i]->GetPosition()).y,
-				m_stripedBalls[i]->GetRadius() * 8, m_stripedBalls[i]->GetRadius() * 8,
-				m_stripedBalls[i]->GetOrientation(), 0, 0.5f, 0.5f
-			);
+		m_2dRenderer->drawSprite(
+			m_stripedBalls[i]->GetBallTexture(), 
+			WorldToScreen(m_stripedBalls[i]->GetPosition()).x,
+			WorldToScreen(m_stripedBalls[i]->GetPosition()).y,
+			m_stripedBalls[i]->GetRadius() * 8, m_stripedBalls[i]->GetRadius() * 8,
+			m_stripedBalls[i]->GetOrientation(), 0, 0.5f, 0.5f
+		);
 	}
 
 	if(!m_whiteBall->HasSunk())
@@ -284,12 +281,18 @@ void Application2D::draw() {
 	m_2dRenderer->end();
 }
 
+/**
+ * \brief Creates the players for the game
+ */
 void Application2D::CreatePlayers()
 {
 	m_playerOne = new Player();
 	m_playerTwo = new Player();
 }
 
+/**
+ * \brief Sets up the table and pockets + triggers
+ */
 void Application2D::PoolSetup()
 {
 	CreatePlayers();
@@ -298,6 +301,9 @@ void Application2D::PoolSetup()
 	SetupPocketTriggers();
 }
 
+/**
+ * \brief Sets up the table and pockets
+ */
 void Application2D::SetupTableAndPockets()
 {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -379,6 +385,9 @@ void Application2D::SetupTableAndPockets()
 	m_pockets.push_back(bottomLeft);
 }
 
+/**
+ * \brief Sets up the callbacks for the pocket triggers
+ */
 void Application2D::SetupPocketTriggers()
 {
 	for (auto& m_pocket : m_pockets)
@@ -391,6 +400,9 @@ void Application2D::SetupPocketTriggers()
 	}
 }
 
+/**
+ * \brief Sets up the balls in the ball list
+ */
 void Application2D::AddToBallList()
 {
 	// Loops through all the balls in play and add them to a single list for velocity checking
@@ -405,6 +417,9 @@ void Application2D::AddToBallList()
 	m_allBalls.push_back(m_whiteBall);
 }
 
+/**
+ * \brief Sets up and places the balls in the scene
+ */
 void Application2D::SetupBalls()
 {
 	// Setup the ball textures
@@ -499,8 +514,6 @@ void Application2D::SetupBalls()
 					false, false)); // kinematic, trigger
 				m_physicsScene->AddActor(m_stripedBalls[m_stripedBalls.size()-1]);
 			}
-			
-			//m_physicsScene->AddActor(m_solidBalls[i]);
 			ballsPlaced++;
 		}
 	}
@@ -509,41 +522,43 @@ void Application2D::SetupBalls()
 	AddToBallList();
 }
 
-//Trigger function
+/**
+ * \brief Checks if the player has sunk a ball of the same type as the first ball they sunk
+ * \param _ball The ball that was sunk
+ */
 void Application2D::OnPoolBallSunkTrigger(PoolBall* _ball)
 {
 	switch((int)_ball->GetBallType())
 	{
 	case (int)WHITE:
-		//std::cout << "WHITE BALL SUNK" << std::endl;
 		m_whiteBall->SinkBall();
 		RemoveWhiteBall();
 		m_isFoul = true;
 		break;
 		
 	case (int)BLACK:
-		//std::cout << "BLACK BALL SUNK" << std::endl;
 		CheckPlayerAgainstBallType(_ball);
 		break;
 		
 	case (int)SOLID:
-		//std::cout << "SOLID BALL SUNK" << std::endl;
 		SetFirstBallTypeToPlayer(_ball->GetBallType());
 		CheckPlayerAgainstBallType(_ball);
 		break;
 		
 	case (int)STRIPED:
-		//std::cout << "STRIPED BALL SUNK" << std::endl;
 		SetFirstBallTypeToPlayer(_ball->GetBallType());
 		CheckPlayerAgainstBallType(_ball);
 		break;
 
 	default:
-		//std::cout << "BROKEN BALL SUNK" << std::endl;
 		break;
 	}
 }
 
+/**
+ * \brief Sets the first ball type if it is the first ball sunk
+ * \param ball The ball type to set
+ */
 void Application2D::SetFirstBallTypeToPlayer(BallType ball)
 {
 	switch (m_isPlayerOneTurn)
@@ -580,6 +595,10 @@ void Application2D::SetFirstBallTypeToPlayer(BallType ball)
 	}
 }
 
+/**
+ * \brief Checks if the player has sunk a ball of the same type as the first ball they sunk
+ * \param _ball
+ */
 void Application2D::CheckPlayerAgainstBallType(PoolBall* _ball)
 {
 	switch (m_isPlayerOneTurn)
@@ -643,6 +662,9 @@ void Application2D::CheckPlayerAgainstBallType(PoolBall* _ball)
 	UpdatePlayerBallType();
 }
 
+/**
+ * \brief Updates the player's ball type if they have sunk 7 balls to black
+ */
 void Application2D::UpdatePlayerBallType()
 {
 	if(m_playerOne->m_score >= 7)
@@ -653,9 +675,12 @@ void Application2D::UpdatePlayerBallType()
 	{
 		m_playerTwo->SetBallType(BLACK);
 	}
-
 }
 
+/**
+ * \brief Checks if the player hits a ball of the same type as the first ball they hit
+ * as their first collision on their turn
+ */
 void Application2D::AssessPlayerFirstBallHit()
 {
 	if(m_firstBallHit == nullptr || m_firstBallHit->GetBallType() == WHITE)
@@ -682,6 +707,9 @@ void Application2D::AssessPlayerFirstBallHit()
 	}
 }
 
+/**
+ * \brief Removes the white ball from the game
+ */
 void Application2D::RemoveWhiteBall()
 {
 	m_whiteBall->SetVelocity(glm::vec2(0));
@@ -690,9 +718,11 @@ void Application2D::RemoveWhiteBall()
 	m_whiteBall->SetPosition(glm::vec2(2000, 2000));
 }
 
+/**
+ * \brief Places the white ball back on the table within placement bounds
+ */
 void Application2D::PlaceWhiteBall()
 {
-	//std::cout << "x = " << m_mousePos.x << std::endl << " y = " << m_mousePos.y << std::endl;
 	if(!(m_mousePos.x < 150 && m_mousePos.x > 90 &&
 		m_mousePos.y < 75 && m_mousePos.y > -75))
 		return;
@@ -702,11 +732,18 @@ void Application2D::PlaceWhiteBall()
 	m_whiteBallReset = true;
 }
 
+/**
+ * \brief Sets the winner of the game
+ * \param player The player who won the game
+ */
 void Application2D::GameOver(Player* player)
 {
 	m_winner = player;
 }
 
+/**
+ * \brief Processes the turn
+ */
 void Application2D::ProcessTurn()
 {
 	if (m_firstBallHit == nullptr)
@@ -731,6 +768,11 @@ void Application2D::ProcessTurn()
 	m_turnProcessed = true;
 }
 
+/**
+ * \brief Gets the player who owns the ball
+ * \param _ball The ball type to check
+ * \return 
+ */
 Player* Application2D::GetPlayer(PoolBall* _ball)
 {
 	if(m_playerOne->GetBallType() == _ball->GetBallType())
@@ -740,6 +782,10 @@ Player* Application2D::GetPlayer(PoolBall* _ball)
 	return m_playerTwo;
 }
 
+/**
+ * \brief Displays the ball on the scoreboard
+ * \param _ball The ball to display
+ */
 void Application2D::DisplayBallIOnPlayerScoreboard(PoolBall* _ball)
 {
 	_ball->SetVelocity(glm::vec2(0));
@@ -755,13 +801,16 @@ void Application2D::DisplayBallIOnPlayerScoreboard(PoolBall* _ball)
 	}
 	else
 	{
-		//m_sunkStripedBallTextures.push_back();
 		_ball->SetPosition(glm::vec2( 210 - ((score) * 15), 125));
 	}
 	_ball->SinkBall();
 }
 
-
+/**
+ * \brief Checks if the balls are moving in each frame
+ * \param _deltaTime The time between frames
+ * \return True if the balls are moving
+ */
 bool Application2D::CheckVelocities(float _deltaTime)
 {
 	int movingBalls = 0;
@@ -782,24 +831,23 @@ bool Application2D::CheckVelocities(float _deltaTime)
 		}
 	}
 
-	//glm::vec2 averageVelocity = glm::vec2(currentTotalVelocity.x / m_allBalls.size(), currentTotalVelocity.y / m_allBalls.size());
-
 	if (currentTotalVelocity == glm::vec2(0) && currentTotalVelocity == m_previousTurnVelocity)
 		ballsMoving = false;
 
 	m_previousTurnVelocity = currentTotalVelocity;
-	/*if(m_firstBallHit != nullptr)
-		std::cout << m_firstBallHit->GetBallTexture()->getFilename() << std::endl;*/
-
 
 	return ballsMoving;
 }
 
+/**
+ * \brief Handles the gameplay logic
+ * \param _input The input received
+ * \param _deltaTime The time between frames
+ */
 void Application2D::HandleGameplay(aie::Input* _input, float _deltaTime)
 {
-	if(CheckVelocities(_deltaTime))//m_turnTimer < 7
+	if(CheckVelocities(_deltaTime))
 	{
-		//m_turnTimer += _deltaTime;
 		m_turnProcessed = false;
 		m_isShooting = false;
 		AssessPlayerFirstBallHit();
@@ -842,13 +890,14 @@ void Application2D::HandleGameplay(aie::Input* _input, float _deltaTime)
 			m_isShooting = true;
 		}
 	}
-
+	
 	if (_input->isMouseButtonDown(1) && m_whiteBall->HasSunk())
 	{
 		m_firstBallHit = nullptr;
 		PlaceWhiteBall();
 	}
 
+	// DEBUG INPUT
 	if(_input->isKeyDown(aie::INPUT_KEY_Z))
 	{
 		m_firstBallHit = nullptr;
@@ -856,6 +905,11 @@ void Application2D::HandleGameplay(aie::Input* _input, float _deltaTime)
 	}
 }
 
+/**
+ * \brief Converts a screen position to a world position
+ * \param _screenPos The screen position to convert
+ * \return The world position
+ */
 glm::vec2 Application2D::ScreenToWorld(glm::vec2 _screenPos)
 {
     glm::vec2 worldPos = _screenPos;
@@ -871,6 +925,11 @@ glm::vec2 Application2D::ScreenToWorld(glm::vec2 _screenPos)
     return worldPos;
 }
 
+/**
+ * \brief Converts a world position to a screen position
+ * \param _worldPos The world position to convert
+ * \return The screen position
+ */
 glm::vec2 Application2D::WorldToScreen(glm::vec2 _worldPos)
 {
 	glm::vec2 screenPos = _worldPos;
@@ -883,26 +942,54 @@ glm::vec2 Application2D::WorldToScreen(glm::vec2 _worldPos)
 	return screenPos;
 }
 
+/**
+ * \brief Calculates the radians from the given degrees
+ * \param _degree The degree to convert
+ * \return The radians
+ */
 float Application2D::DegreeToRadian(float _degree)
  {
 	return _degree * (float)(PI / (double)180.f);
  }
 
+/**
+ * \brief Calculates the degrees from the given radians
+ * \param _radian The radians to convert
+ * \return The degrees
+ */
 float Application2D::RadianToDegree(float _radian)
 {
 	return _radian * (float)(180.f / (double)PI);
 }
 
+/**
+ * \brief Calculates the angle between two points
+ * \param _point1 The first point
+ * \param _point2 The second point
+ * \return The angle between the two points
+ */
 float Application2D::GetAngleBetweenPoints(glm::vec2 _point1, glm::vec2 _point2)
 {
 	return atan2(_point2.y - _point1.y, _point2.x - _point1.x);
 }
 
+/**
+ * \brief Calculates the length between two points
+ * \param _point1 The first point
+ * \param _point2 The second point
+ * \return The length between the two points
+ */
 float Application2D::GetLengthBetweenPoints(glm::vec2 _point1, glm::vec2 _point2)
 {
 	return sqrt(pow(_point2.x - _point1.x, 2) + pow(_point2.y - _point1.y, 2) * 1.0);
 }
 
+/**
+ * \brief Calculates the force between two points - Where the cue stick power can be altered
+ * \param _point1 The first point
+ * \param _point2 The second point
+ * \return The force between the two points
+ */
 glm::vec2 Application2D::CalculateForce(glm::vec2 _point1, glm::vec2 _point2)
 {
 	float angle = GetAngleBetweenPoints(_point1, _point2);
@@ -910,7 +997,7 @@ glm::vec2 Application2D::CalculateForce(glm::vec2 _point1, glm::vec2 _point2)
 
 	if(length > 100)
 	{
-		length = 100 * 15;
+		length = 100 * 10;
 	}
 	else if (length < 10)
 	{
@@ -918,11 +1005,10 @@ glm::vec2 Application2D::CalculateForce(glm::vec2 _point1, glm::vec2 _point2)
 	}
 	else
 	{
-		length *= 10;
+		length *= 7.5;
 	}
 	
 	glm::vec2 force = glm::vec2(cos(angle) * length, sin(angle) * length);
 
-	//std::cout << std::to_string(force.x) << " - " << std::to_string(force.y) << std::endl;
 	return force;
 }

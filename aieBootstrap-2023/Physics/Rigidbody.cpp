@@ -71,7 +71,8 @@ void Rigidbody::FixedUpdate(glm::vec2 _gravity, float _timeStep)
     //Apply Forces
     ApplyForce(_gravity * m_mass * _timeStep, glm::vec2(0));
     //Apply angular velocity to orientation
-    m_orientation += DegreeToRadian(m_angularVelocity * _timeStep);
+    // Uncomment this for rotations
+    //m_orientation += DegreeToRadian(m_angularVelocity * _timeStep);
 
     m_velocity -= m_velocity * m_linearDrag * _timeStep;
     m_angularVelocity -= m_angularVelocity * m_angularDrag * _timeStep;
